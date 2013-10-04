@@ -243,6 +243,12 @@ int is_script_parsable(FILE *stream, char **errstr, sieve_script_t **ret)
 	goto done;
     }
   
+    res = sieve_register_hasflag(i, (sieve_get_hasflag *) &foo);
+    if (res != SIEVE_OK) {
+	syslog(LOG_ERR, "sieve_register_hasflag() returns %d\n", res);
+	goto done;
+    }
+
     res = sieve_register_envelope(i, (sieve_get_envelope *) &foo);
     if (res != SIEVE_OK) {
 	syslog(LOG_ERR, "sieve_register_envelope() returns %d\n", res);
