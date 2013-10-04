@@ -199,6 +199,7 @@ static int is_script_parsable(FILE *stream, char **errstr, sieve_script_t **ret)
     sieve_register_envelope(i, (sieve_get_envelope *) &foo);
     sieve_register_body(i, (sieve_get_body *) &foo);
     sieve_register_include(i, (sieve_get_include *) &foo);
+    sieve_register_hasflag(i, (sieve_get_hasflag *) &foo);
 
     res = sieve_register_vacation(i, &vacation);
     if (res != SIEVE_OK) {
