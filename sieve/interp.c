@@ -133,6 +133,9 @@ const char *sieve_listextensions(sieve_interp_t *i)
 	if (i->getbody &&
 	    (config_sieve_extensions & IMAP_ENUM_SIEVE_EXTENSIONS_BODY))
 	    strlcat(extensions, " body", EXT_LEN);
+	if (i->gethasflag &&
+	    (config_sieve_extensions & IMAP_ENUM_SIEVE_EXTENSIONS_IMAP4FLAGS))
+	    strlcat(extensions, " imap4flags", EXT_LEN);
 
 	/* add match-types */
 	if (config_sieve_extensions & IMAP_ENUM_SIEVE_EXTENSIONS_RELATIONAL)
@@ -242,6 +245,12 @@ int sieve_register_include(sieve_interp_t *interp, sieve_get_include *f)
 int sieve_register_body(sieve_interp_t *interp, sieve_get_body *f)
 {
     interp->getbody = f;
+    return SIEVE_OK;
+}
+
+int sieve_register_hasflag(sieve_interp_t *interp, sieve_get_hasflag *f)
+{
+    interp->gethasflag = f;
     return SIEVE_OK;
 }
 
