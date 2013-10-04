@@ -77,7 +77,7 @@ struct Test {
     union {
 	testlist_t *tl; /* anyof, allof */
 	stringlist_t *sl; /* exists */
-	struct { /* it's a header test */
+	struct { /* it's a header or hasflag test */
 	    int comptag;
 	    char * comparator;
 	    int relation;
@@ -131,10 +131,14 @@ struct Commandlist {
 	    int location;
 	    char *script;
 	} inc;
+	struct { /* it's a keep action */
+	    int copy;
+	    stringlist_t *flags;
+	} k;
 	struct { /* it's a fileinto action */
 	    char *folder;
 	    int copy;
-	    /* add stringlist_t for imap4flags */
+	    stringlist_t *flags;
 	} f;
 	struct { /* it's a redirect action */
 	    char *address;
