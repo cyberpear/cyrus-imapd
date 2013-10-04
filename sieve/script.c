@@ -139,6 +139,14 @@ int script_require(sieve_script_t *s, char *req)
 	} else {
 	    return 0;
 	}
+    } else if (!strcmp("imap4flags", req)) {
+	if (s->interp.gethasflag &&
+	    (config_sieve_extensions & IMAP_ENUM_SIEVE_EXTENSIONS_IMAP4FLAGS)) {
+	    s->support.imap4flags = 1;
+	    return 1;
+	} else {
+	    return 0;
+	}
     } else if (!strcmp("notify",req)) {
 	if (s->interp.notify &&
 	    (config_sieve_extensions & IMAP_ENUM_SIEVE_EXTENSIONS_NOTIFY)) {
