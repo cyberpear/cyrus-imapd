@@ -955,7 +955,7 @@ static commandlist_t *build_keep(int t, struct ftags *f)
 
     if (ret) {
 	ret->u.k.copy = f->copy;
-	ret->u.f.flags = f->flags;
+	ret->u.k.flags = f->flags;
 	free_ftags(f);
     }
     return ret;
