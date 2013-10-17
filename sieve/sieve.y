@@ -1466,7 +1466,6 @@ static struct ftags *canon_ftags(struct ftags *f)
 
 static void free_ftags(struct ftags *f)
 {
-    if (f->flags) free(f->flags);
     free(f);
 }
 
