@@ -322,7 +322,7 @@ action: REJCT STRING             { if (!parse_script->support.reject) {
 				     YYERROR; /* va should call yyerror() */
 				   }
 	                           $$ = build_redirect(REDIRECT, $2, $3); }
-	| KEEP ftags		 { $$ = new_command(KEEP); /* build_keep(KEEP,$2); */ }
+	| KEEP ftags		 { $$ = build_keep(KEEP,canon_ftags($2)); }
 	| STOP			 { $$ = new_command(STOP); }
 	| DISCARD		 { $$ = new_command(DISCARD); }
 	| VACATION vtags STRING  { if (!parse_script->support.vacation) {
