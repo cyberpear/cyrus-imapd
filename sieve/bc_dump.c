@@ -166,6 +166,20 @@ static int dump_test(bytecode_info_t *d, int ip, int level ) {
 	ip = dump_sl(d,ip,level);
 	break;
 	
+    case BC_HASFLAG:
+	printf("%d: HASFLAG (\n",ip++);
+	print_spaces(level*4);
+	if (d->data[ip].value == B_COUNT || d->data[ip].value == B_VALUE)
+	{
+	    printf("      MATCH:%d  RELATION:%d  COMP:%d FLAGS:\n",
+		   d->data[ip].value, d->data[ip+1].value,d->data[ip+2].value);
+	} else {
+	    printf("      MATCH:%d COMP:%d FLAGS:\n",d->data[ip].value, d->data[ip+2].value);
+	}
+	ip+=3;
+	ip = dump_sl(d,ip,level);
+	break;
+
     case BC_ADDRESS:
     case BC_ENVELOPE:
 	printf("%d: %s (\n",ip++,
