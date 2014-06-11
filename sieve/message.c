@@ -184,9 +184,10 @@ int do_redirect(action_list_t *a, const char *addr, int cancel_keep)
  *
  * incompatible with: reject
  */
-int do_keep(action_list_t *a, sieve_imapflags_t *imapflags)
+int do_keep(action_list_t *a, int cancel_keep, sieve_imapflags_t *imapflags)
 {
     action_list_t *b = NULL;
+    action_list_t *prev = NULL;
 
     /* see if this conflicts with any previous actions taken on this message */
     while (a != NULL) {
@@ -212,15 +213,17 @@ int do_keep(action_list_t *a, sieve_imapflags_t *imapflags)
 	a = a->next;
     }
 
-    /* add to the action list */
-    a = (action_list_t *) xmalloc(sizeof(action_list_t));
-    if (a == NULL)
-	return SIEVE_NOMEM;
+    if(a == NULL) {
+	/* add to the action list */
+	a = (action_list_t *) xmalloc(sizeof(action_list_t));
+	if (a == NULL)
+	    return SIEVE_NOMEM;
+	a->next = NULL;
+	b->next = a;
+    }
     a->a = ACTION_KEEP;
-    a->cancel_keep = 1;
+    a->cancel_keep = cancel_keep;
     a->u.keep.imapflags = imapflags;
-    a->next = NULL;
-    b->next = a;
     return 0;
 }
 
