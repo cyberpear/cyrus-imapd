@@ -366,6 +366,7 @@ static int sieve_addflag(sieve_imapflags_t *imapflags, const char *flag)
     int n;
     /* search for flag already in list */
     for (n = 0; n < imapflags->nflags; n++) {
+	//TODO: make this case insensitive
 	if (!strcmp(imapflags->flag[n], flag))
 	    break;
     }
@@ -386,6 +387,7 @@ static int sieve_removeflag(sieve_imapflags_t *imapflags, const char *flag)
 {
     int n;
     /* search for flag already in list */
+    //TODO: make this case insensitive
     for (n = 0; n < imapflags->nflags; n++) {
       if (!strcmp(imapflags->flag[n], flag))
 	break;
@@ -746,6 +748,10 @@ static int do_action_list(sieve_interp_t *interp,
 				   script_context,
 				   message_context,
 				   &errmsg);
+	    // If we didn't use the shared imapflags, we need to free it
+	    if(&a->u.fil.imapflags != imapflags) {
+		; //TODO: free imapflags
+	    }
 
 	    if (ret == SIEVE_OK)
 		snprintf(actions_string+strlen(actions_string),
@@ -760,6 +766,11 @@ static int do_action_list(sieve_interp_t *interp,
 			       script_context,
 			       message_context,
 			       &errmsg);
+	    // If we didn't use the shared imapflags, we need to free it
+	    if(&a->u.keep.imapflags != imapflags) {
+		; //TODO: free imapflags
+	    }
+
 	    if (ret == SIEVE_OK)
 		snprintf(actions_string+strlen(actions_string),
 			 ACTIONS_STRING_LEN-strlen(actions_string),
