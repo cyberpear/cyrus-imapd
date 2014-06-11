@@ -58,6 +58,7 @@ struct bytecode_info
     size_t reallen; /* allocated length of 'data' */
 };
 
+/* TODO: Update for imap4flags */
 #if DUMPCODE
 
 /*this would work a lot better if we actually could tell how many levels deep in if statements we were.  currently it doesn't know*/

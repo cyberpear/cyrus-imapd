@@ -47,7 +47,7 @@
 
 
 /* for debugging*/
-#define DUMPCODE 1
+#define DUMPCODE 0
 #define VERBOSE 1
 
 /*for finding correctly aligned bytes on strings*/
