@@ -1113,6 +1113,7 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 	    break;
 
 	case B_KEEP:
+	    copy = ntohl(bc[ip+1].value);
 	case B_KEEP_ORIG:/*1*/
 	    res = do_keep(actions, 1, imapflags);
 	    if (res == SIEVE_RUN_ERROR)
@@ -1143,6 +1144,26 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 	case B_FILEINTO_ORIG:/*4*/
 	{
 	    ip = unwrap_string(bc, ip+1, &data, NULL);
+
+	    if(op==B_FILEINTO) {
+		int x;
+		int list_len=ntohl(bc[ip+1].len);
+		sieve_imapflags_t *lflags = xmalloc(sizeof(sieve_imapflags_t*));
+
+		ip+=2; /* skip opcode, list_len, and list data len */
+
+		for (x=0; x<list_len; x++) {
+		    ip = unwrap_string(bc, ip, &data, NULL);
+
+		    //TODO: update to create a flaglist
+		    //res = do_addflag(actions, data);
+		    sieve_addflag(lflags,data);
+
+
+		    if (res == SIEVE_RUN_ERROR)
+			*errmsg = "addflag can not be used with Reject";
+		}
+	    }
 
 	    res = do_fileinto(actions, data, !copy, imapflags);
 

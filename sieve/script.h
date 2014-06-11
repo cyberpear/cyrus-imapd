@@ -101,4 +101,6 @@ struct sieve_execute {
 commandlist_t *sieve_parse(sieve_script_t *script, FILE *f);
 int script_require(sieve_script_t *s, char *req);
 
+static int sieve_addflag(sieve_imapflags_t *imapflags, const char *flag);
+
 #endif
