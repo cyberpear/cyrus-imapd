@@ -99,3 +99,6 @@ sieve/sieve_err.h
 sieve/sievec
 sieve/sieved
 xversion.h
+/.cproject
+/.project
+/config.cache

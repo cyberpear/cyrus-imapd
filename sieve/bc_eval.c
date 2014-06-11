@@ -62,10 +62,12 @@
 
 #include <string.h>
 #include <ctype.h>
+#include <regex.h>
 
 #define SCOUNT_SIZE 20
 char scount[SCOUNT_SIZE];
 
+/* TODO: update for imap4flags */
 /**************************************************************************/
 /**************************************************************************/
 /**************************************************************************/
@@ -779,6 +781,126 @@ static int eval_bc_test(sieve_interp_t *interp, void* m,
 	
 	break;
     }
+    case BC_HASFLAG:
+    {
+	const char** val;
+
+	int flagsi=i+4;/*the i value for the beginning of the flags*/
+
+	int numsflags=ntohl(bc[flagsi].len); // number of search flags
+	int numaflags=-1; // number of active flags
+
+	int currsf; /* current search flag */
+	int curraf; /* current active flag */
+
+	int match=ntohl(bc[i+1].value);
+	int relation=ntohl(bc[i+2].value);
+	int comparator=ntohl(bc[i+3].value);
+	int count=0;
+	int isReg = (match==B_REGEX);
+	int ctag = 0;
+	regex_t *reg;
+	char errbuf[100]; /* Basically unused, regexps tested at compile */
+
+	/* set up variables needed for compiling regex */
+	if (isReg)
+	{
+	    if (comparator== B_ASCIICASEMAP)
+	    {
+		ctag= REG_EXTENDED | REG_NOSUB | REG_ICASE;
+	    }
+	    else
+	    {
+		ctag= REG_EXTENDED | REG_NOSUB;
+	    }
+
+	}
+
+	/*find the correct comparator fcn*/
+	comp=lookup_comp(comparator, match, relation, &comprock);
+
+	if(!comp) {
+	    res = SIEVE_RUN_ERROR;
+	    break;
+	}
+
+	/*search through all the flags for the flag*/
+	currsf=flagsi+2;
+	for(x=0; x<numsflags && !res; x++)
+	{
+	    const char *this_flag;
+
+	    currsf = unwrap_string(bc, currsf, &this_flag, NULL);
+
+	    if(interp->getheader(m, this_flag, &val) != SIEVE_OK) { // TODO: go through action_list to resolve current flags for message
+		continue; /*this flag does not exist, search the next*/
+	    }
+#if VERBOSE
+	    printf ("val %s %s %s\n", val[0], val[1], val[2]);
+#endif
+
+	    /* search through all the headers that match */
+
+	    for (y = 0; val[y] && !res; y++)
+	    {
+		if  (match == B_COUNT) {
+		    count++;
+		} else {
+		    /*search through all the data*/
+
+		    for (z=0; z<numaflags && !res; z++)
+		    {
+			const char *data_val;
+
+			curraf = unwrap_string(bc, curraf, &data_val, NULL); //TODO: assign the current active flag here (not from bc)
+
+			if (isReg) {
+			    reg= bc_compile_regex(data_val, ctag, errbuf,
+						  sizeof(errbuf));
+			    if (!reg)
+			    {
+				/* Oops */
+				res=-1;
+				goto alldone;
+			    }
+
+			    res |= comp(data_val, strlen(data_val),
+					(const char *)reg, comprock);
+			    free(reg);
+			} else {
+			    res |= comp(data_val, strlen(data_val),
+					data_val, comprock);
+			}
+		    }
+		}
+	    }
+	}
+
+	if  (match == B_COUNT )
+	{
+	    snprintf(scount, SCOUNT_SIZE, "%u", count);
+	    /*search through all the data*/
+	    curraf=flagsi+2;
+	    for (z=0; z<numaflags && !res; z++)
+	    {
+		const char *data_val;
+
+		curraf = unwrap_string(bc, curraf, &data_val, NULL);
+#if VERBOSE
+		printf("%d, %s \n", count, data_val);
+#endif
+		res |= comp(scount, strlen(scount), data_val, comprock);
+	    }
+
+	}
+
+	/* Update IP */
+	i=(ntohl(bc[flagsi+1].value)/4);
+
+	break;
+	/* TODO: implement hasflag test */
+
+    }
     case BC_BODY:/*10*/
     {
 	sieve_bodypart_t ** val;
@@ -965,6 +1087,7 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 		"Incorrect Bytecode Version, please recompile (use sievec)";
 	    
 	}
+
 	return SIEVE_FAIL;
     }
     
@@ -989,8 +1112,9 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 	    res=1;
 	    break;
 
-	case B_KEEP:/*1*/
-	    res = do_keep(actions, imapflags);
+	case B_KEEP:
+	case B_KEEP_ORIG:/*1*/
+	    res = do_keep(actions, 1, imapflags);
 	    if (res == SIEVE_RUN_ERROR)
 		*errmsg = "Keep can not be used with Reject";
 	    ip++;
@@ -1010,8 +1134,8 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 		*errmsg = "Reject can not be used with any other action";  
 
 	    break;
-
-	case B_FILEINTO:/*19*/
+	case B_FILEINTO:
+	case B_FILEINTO_COPY:/*19*/
 	    copy = ntohl(bc[ip+1].value);
 	    ip+=1;
 
