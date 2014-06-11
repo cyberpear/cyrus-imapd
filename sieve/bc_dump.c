@@ -269,6 +269,7 @@ void dump(bytecode_info_t *d, int level)
 	    
 	case B_KEEP:
 	    printf("%d: KEEP\n",i);
+	    /* TODO: add stuff for :copy and :flags here */
 	    break;
 
 	case B_MARK:
@@ -283,6 +284,7 @@ void dump(bytecode_info_t *d, int level)
 	    printf("%d: FILEINTO COPY(%d) FOLDER({%d}%s)\n",i,
 		   d->data[i+1].value,d->data[i+2].len,d->data[i+3].str);
 	    i+=3;
+	    /* TODO: add stuff for :flags here */
 	    break;
 
 	case B_REDIRECT:
