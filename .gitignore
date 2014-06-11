@@ -143,3 +143,6 @@ stamp-h1
 timsieved/timsieved
 xversion.h
 ylwrap
+/.cproject
+/.project
+/config.cache
