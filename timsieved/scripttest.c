@@ -61,6 +61,7 @@ static void foo(void)
     fatal("stub function called", 0);
 }
 
+/* TODO: evaluate for imap4flags */
 
 static sieve_vacation_t vacation = {
     0,				/* min response */
