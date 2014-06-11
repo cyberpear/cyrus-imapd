@@ -465,6 +465,7 @@ int append_fromstage(struct appendstate *as, struct body **body,
     }
 
     /* Handle flags the user wants to set in the message */
+    //TODO: make these case insensitive
     for (i = 0; i < nflags; i++) {
 	if (!strcmp(flag[i], "\\seen")) {
 	    append_setseen(as, &message_index);
