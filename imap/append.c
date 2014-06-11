@@ -775,6 +775,7 @@ static int append_apply_flags(struct appendstate *as,
 
     assert(flags);
 
+    //TODO: make these case insensitive
     for (i = 0; i < flags->count; i++) {
 	const char *flag = strarray_nth(flags, i);
 	if (!strcasecmp(flag, "\\seen")) {
