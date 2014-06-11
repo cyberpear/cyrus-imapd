@@ -714,6 +714,10 @@ static int do_action_list(sieve_interp_t *interp,
 				   &errmsg);
 	    free(interp->lastitem);
 	    interp->lastitem = xstrdup(a->u.fil.mailbox);
+	    // If we didn't use the shared imapflags, we need to free it
+	    if(a->u.fil.imapflags != imapflags) {
+		; //TODO: free imapflags
+	    }
 
 	    if (ret == SIEVE_OK)
 		snprintf(actions_string+strlen(actions_string),
@@ -730,6 +734,11 @@ static int do_action_list(sieve_interp_t *interp,
 			       &errmsg);
 	    free(interp->lastitem);
 	    interp->lastitem = NULL;
+	    // If we didn't use the shared imapflags, we need to free it
+	    if(a->u.keep.imapflags != imapflags) {
+		; //TODO: free imapflags
+	    }
+
 	    if (ret == SIEVE_OK)
 		snprintf(actions_string+strlen(actions_string),
 			 ACTIONS_STRING_LEN-strlen(actions_string),
