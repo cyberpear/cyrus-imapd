@@ -47,7 +47,6 @@
 #include "sieve_interface.h"	/* for action contexts */
 #include "tree.h"
 
-typedef struct Action action_list_t;
 
 typedef enum {
     ACTION_NULL = -1,
@@ -67,15 +66,11 @@ typedef enum {
     ACTION_DENOTIFY
 } action_t;
 
-/* information */
-action_list_t *new_action_list(void);
-void free_action_list(action_list_t *actions);
-
 /* invariant: always have a dummy element when free_action_list, param
    and vac_subj are freed.  none of the others are automatically freed.
 
    the do_action() functions should copy param */
-struct Action {
+typedef struct Action {
     action_t a;
     int cancel_keep;
     union {
@@ -97,7 +92,11 @@ struct Action {
     char *vac_subj;		/* freed! */
     char *vac_msg;
     int vac_days;
-};
+} action_list_t;
+
+/* information */
+action_list_t *new_action_list(void);
+void free_action_list(action_list_t *actions);
 
 typedef struct notify_list_s {
     int isactive;
