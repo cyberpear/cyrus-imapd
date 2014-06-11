@@ -67,6 +67,7 @@
 #define SCOUNT_SIZE 20
 char scount[SCOUNT_SIZE];
 
+/* TODO: update for imap4flags */
 /**************************************************************************/
 /**************************************************************************/
 /**************************************************************************/
@@ -1077,6 +1078,7 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 		"Incorrect Bytecode Version, please recompile (use sievec)";
 	    
 	}
+
 	return SIEVE_FAIL;
     }
     
