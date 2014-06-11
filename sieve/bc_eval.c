@@ -66,6 +66,7 @@
 #define SCOUNT_SIZE 20
 char scount[SCOUNT_SIZE];
 
+/* TODO: update for imap4flags */
 /**************************************************************************/
 /**************************************************************************/
 /**************************************************************************/
@@ -1085,6 +1086,7 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 		"Incorrect Bytecode Version, please recompile (use sievec)";
 	    
 	}
+
 	return SIEVE_FAIL;
     }
     
@@ -1132,7 +1134,8 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 
 	    break;
 
-	case B_FILEINTO:/*19*/
+	case B_FILEINTO:
+	case B_FILEINTO_COPY:/*19*/
 	    copy = ntohl(bc[ip+1].value);
 	    ip+=1;
 

@@ -1,4 +1,5 @@
-require ["reject", "fileinto", "imapflags", "vacation", "notify"];
+require ["reject", "fileinto", "imapflags", "vacation", "notify",
+	"copy", "imap4flags"];
 
 #this is for the extra thigns we have added to sieve
 
@@ -44,6 +45,22 @@ if header :contains "subject" "sflag2"
 #removeflag
 if header :contains "subject" "rflag"
 {removeflag "\\answered";}
+
+# TODO: add imap4flags tests
+# :flags argument
+keep;
+keep :copy;
+keep :flags ["keepf1", "keepf2"];
+keep :copy :flags ["keepcf1", "keepcf2"];
+
+fileinto :flags ["flags1", "flags2"] "INBOX.flags";
+fileinto :copy :flags ["cflags1", "cflags2", "fllags3"] "INBOX.copy.flags";
+
+if hasflag :contains ["junk", "forward"]
+{keep :copy;}
+
+if header :contains "subject" ["fileinto", "fileinto2"]
+{fileinto "INBOX.good";}
 
 #VACATION
 #############################################

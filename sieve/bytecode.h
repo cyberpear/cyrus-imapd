@@ -47,8 +47,8 @@
 
 
 /* for debugging*/
-#define DUMPCODE 0
-#define VERBOSE 0
+#define DUMPCODE 1
+#define VERBOSE 1
 
 /*for finding correctly aligned bytes on strings*/
 /* bump to the next multiple of 4 bytes */
