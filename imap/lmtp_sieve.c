@@ -541,6 +541,7 @@ static int sieve_keep(void *ac,
 		      void *ic __attribute__((unused)),
 		      void *sc, void *mc, const char **errmsg)
 {
+    /* TODO: Update this function for imap4flags and to support :copy */
     sieve_keep_context_t *kc = (sieve_keep_context_t *) ac;
     script_data_t *sd = (script_data_t *) sc;
     deliver_data_t *mydata = (deliver_data_t *) mc;
@@ -805,6 +806,7 @@ sieve_interp_t *setup_sieve(void)
 
     sieve_register_parse_error(interp, &sieve_parse_error_handler);
     sieve_register_execute_error(interp, &sieve_execute_error_handler);
+    /* TODO: Add support for imap4flags here */
 
     return interp;
 }
