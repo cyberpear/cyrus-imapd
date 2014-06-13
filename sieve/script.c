@@ -749,7 +749,7 @@ static int do_action_list(sieve_interp_t *interp,
 				   message_context,
 				   &errmsg);
 	    // If we didn't use the shared imapflags, we need to free it
-	    if(&a->u.fil.imapflags != imapflags) {
+	    if(a->u.fil.imapflags != imapflags) {
 		; //TODO: free imapflags
 	    }
 
@@ -767,7 +767,7 @@ static int do_action_list(sieve_interp_t *interp,
 			       message_context,
 			       &errmsg);
 	    // If we didn't use the shared imapflags, we need to free it
-	    if(&a->u.keep.imapflags != imapflags) {
+	    if(a->u.keep.imapflags != imapflags) {
 		; //TODO: free imapflags
 	    }
 
