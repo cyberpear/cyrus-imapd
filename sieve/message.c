@@ -104,13 +104,25 @@ int do_fileinto(action_list_t *a, const char *mbox, int cancel_keep,
 
     /* see if this conflicts with any previous actions taken on this message */
     while (a != NULL) {
-	b = a;
 	if (a->a == ACTION_REJECT)
 	    return SIEVE_RUN_ERROR;
 	if (a->a == ACTION_FILEINTO && !strcmp(a->u.fil.mailbox, mbox)) {
 	    /* don't bother doing it twice */
+	    /* check that we have a valid action */
+	    if(b == NULL) {
+		return SIEVE_INTERNAL_ERROR;
+	    }
+	    /* cut this action out of the list */
+	    b->next = a->next;
+	    /* find the end of the list */
+	    while (b->next != NULL) {
+		b = b-> next;
+	    }
+	    /* add the action to the end of the list */
+	    b->next = a;
 	    return 0;
 	}
+	b = a;
 	a = a->next;
     }
 
