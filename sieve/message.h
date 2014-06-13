@@ -68,10 +68,6 @@ typedef enum {
     ACTION_DENOTIFY
 } action_t;
 
-/* information */
-action_list_t *new_action_list(void);
-void free_action_list(action_list_t *actions);
-
 /* invariant: always have a dummy element when free_action_list, param
    and vac_subj are freed.  none of the others are automatically freed.
 
@@ -99,6 +95,10 @@ typedef struct Action {
     char *vac_msg;
     int vac_days;
 } action_list_t;
+
+/* information */
+action_list_t *new_action_list(void);
+void free_action_list(action_list_t *actions);
 
 typedef struct notify_list_s {
     int isactive;
