@@ -212,7 +212,6 @@ int do_keep(action_list_t *a, int cancel_keep, sieve_imapflags_t *imapflags)
 	b = a;
 	a = a->next;
     }
-
     if(a == NULL) {
 	/* add to the action list */
 	a = (action_list_t *) xmalloc(sizeof(action_list_t));
@@ -224,31 +223,6 @@ int do_keep(action_list_t *a, int cancel_keep, sieve_imapflags_t *imapflags)
     a->a = ACTION_KEEP;
     a->cancel_keep = cancel_keep;
     a->u.keep.imapflags = imapflags;
-    return 0;
-}
-int do_fileinto(action_list_t *a, const char *mbox, int cancel_keep,
-		sieve_imapflags_t *imapflags)
-{
-    action_list_t *b = NULL;
-
-    /* see if this conflicts with any previous actions taken on this message */
-    while (a != NULL) {
-	b = a;
-	if (a->a == ACTION_REJECT)
-	    return SIEVE_RUN_ERROR;
-	a = a->next;
-    }
-
-    /* add to the action list */
-    a = (action_list_t *) xmalloc(sizeof(action_list_t));
-    if (a == NULL)
-	return SIEVE_NOMEM;
-    a->a = ACTION_FILEINTO;
-    a->cancel_keep = cancel_keep;
-    a->u.fil.mailbox = mbox;
-    a->u.fil.imapflags = imapflags;
-    b->next = a;
-    a->next = NULL;
     return 0;
 }
 
