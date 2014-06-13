@@ -1158,7 +1158,7 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 
 		    //TODO: update to create a flaglist
 		    //res = do_addflag(actions, data);
-		    sieve_addflag(lflags,data);
+		    //sieve_addflag(lflags,data);// <- also doesn't work
 
 
 		    if (res == SIEVE_RUN_ERROR)
