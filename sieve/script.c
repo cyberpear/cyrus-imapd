@@ -366,8 +366,7 @@ static int sieve_addflag(sieve_imapflags_t *imapflags, const char *flag)
     int n;
     /* search for flag already in list */
     for (n = 0; n < imapflags->nflags; n++) {
-	//TODO: make this case insensitive
-	if (!strcmp(imapflags->flag[n], flag))
+	if (!strcasecmp(imapflags->flag[n], flag))
 	    break;
     }
  
@@ -387,9 +386,8 @@ static int sieve_removeflag(sieve_imapflags_t *imapflags, const char *flag)
 {
     int n;
     /* search for flag already in list */
-    //TODO: make this case insensitive
     for (n = 0; n < imapflags->nflags; n++) {
-      if (!strcmp(imapflags->flag[n], flag))
+      if (!strcasecmp(imapflags->flag[n], flag))
 	break;
     }
     
