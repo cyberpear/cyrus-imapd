@@ -59,6 +59,7 @@
 #include "xstrlcpy.h"
 #include "xstrlcat.h"
 #include "util.h"
+#include "strarray.h"
 
 #include <string.h>
 #include <ctype.h>
@@ -1042,7 +1043,8 @@ static int eval_bc_test(sieve_interp_t *interp, void* m,
 int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 		  void *sc, void *m,
 		  sieve_imapflags_t * imapflags, action_list_t *actions,
-		  notify_list_t *notify_list, const char **errmsg) 
+		  notify_list_t *notify_list, const char **errmsg,
+		  strarray_t *workingflags)
 {
     const char *data;
     int res=0;
@@ -1086,7 +1088,6 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 		"Incorrect Bytecode Version, please recompile (use sievec)";
 	    
 	}
-
 	return SIEVE_FAIL;
     }
     
@@ -1112,7 +1113,21 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 	    break;
 
 	case B_KEEP:
-	    copy = ntohl(bc[ip+1].value);
+	{
+	    int x;
+	    int list_len=ntohl(bc[ip+1].len);
+	    actionflags = strarray_new();
+
+	    ip+=3; /* skip opcode, list_len, and list data len */
+
+	    for (x=0; x<list_len; x++) {
+		const char *flag;
+		ip = unwrap_string(bc, ip, &flag, NULL);
+		strarray_add_case(actionflags,flag);
+	    }
+	}
+	    copy = ntohl(bc[ip].value);
+	    /* fall through */
 	case B_KEEP_ORIG:/*1*/
 	    res = do_keep(actions, 1, imapflags);
 	    if (res == SIEVE_RUN_ERROR)
@@ -1136,6 +1151,20 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 	    break;
 
 	case B_FILEINTO:
+	{
+	    int x;
+	    int list_len=ntohl(bc[ip+1].len);
+	    actionflags = strarray_new();
+
+	    ip+=3; /* skip opcode, list_len, and list data len */
+
+	    for (x=0; x<list_len; x++) {
+		const char *flag;
+		ip = unwrap_string(bc, ip, &flag, NULL);
+		strarray_add_case(actionflags,flag);
+	    }
+	}
+	    /* fall through */
 	case B_FILEINTO_COPY:/*19*/
 	    copy = ntohl(bc[ip+1].value);
 	    ip+=1;
@@ -1143,29 +1172,26 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 	    /* fall through */
 	case B_FILEINTO_ORIG:/*4*/
 	{
+	    strarray_t *actionflags = NULL;
 	    ip = unwrap_string(bc, ip+1, &data, NULL);
 
 	    if(op==B_FILEINTO) {
 		int x;
-		int list_len=ntohl(bc[ip+1].len);
-		sieve_imapflags_t *lflags = xmalloc(sizeof(sieve_imapflags_t*));
+		int list_len=ntohl(bc[ip].len);
+		actionflags = strarray_new();
 
-		ip+=2; /* skip opcode, list_len, and list data len */
+		ip+=2; /* skip list_len, and list data len */
 
 		for (x=0; x<list_len; x++) {
-		    ip = unwrap_string(bc, ip, &data, NULL);
+		    const char *flag
+		    ip = unwrap_string(bc, ip, &flag, NULL);
+		    strarray_add_case(actionflags,flag);
 
 		    //TODO: update to create a flaglist
-		    //res = do_addflag(actions, data);
-		    //sieve_addflag(lflags,data);// <- also doesn't work
-
-
-		    if (res == SIEVE_RUN_ERROR)
-			*errmsg = "addflag can not be used with Reject";
 		}
 	    }
 
-	    res = do_fileinto(actions, data, !copy, imapflags);
+	    res = do_fileinto(actions, data, !copy, imapflags, actionflags);
 
 	    if (res == SIEVE_RUN_ERROR)
 		*errmsg = "Fileinto can not be used with Reject";
