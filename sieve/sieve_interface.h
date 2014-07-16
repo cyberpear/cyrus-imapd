@@ -113,10 +113,12 @@ typedef struct sieve_reject_context {
 typedef struct sieve_fileinto_context {
     const char *mailbox;
     sieve_imapflags_t *imapflags;
+    strarray_t *actionflags;
 } sieve_fileinto_context_t;
 
 typedef struct sieve_keep_context {
     sieve_imapflags_t *imapflags;
+    strarray_t *actionflags;
 } sieve_keep_context_t;
 
 typedef struct sieve_notify_context {

@@ -109,7 +109,7 @@ int do_reject(action_list_t *a, const char *msg)
  * incompatible with: reject
  */
 int do_fileinto(action_list_t *a, const char *mbox, int cancel_keep,
-		sieve_imapflags_t *imapflags)
+		sieve_imapflags_t *imapflags, strarray_t *actionflags)
 {
     action_list_t *b = NULL;
 
@@ -145,6 +145,7 @@ int do_fileinto(action_list_t *a, const char *mbox, int cancel_keep,
     a->cancel_keep = cancel_keep;
     a->u.fil.mailbox = mbox;
     a->u.fil.imapflags = imapflags;
+    a->u.fil.actionflags = actionflags;
     b->next = a;
     a->next = NULL;
     return 0;
@@ -184,7 +185,8 @@ int do_redirect(action_list_t *a, const char *addr, int cancel_keep)
  *
  * incompatible with: reject
  */
-int do_keep(action_list_t *a, int cancel_keep, sieve_imapflags_t *imapflags)
+int do_keep(action_list_t *a, int cancel_keep, sieve_imapflags_t *imapflags,
+	    sieve_imapflags_t *actionflags)
 {
     action_list_t *b = NULL;
     action_list_t *prev = NULL;
@@ -223,7 +225,7 @@ int do_keep(action_list_t *a, int cancel_keep, sieve_imapflags_t *imapflags)
     }
     a->a = ACTION_KEEP;
     a->cancel_keep = cancel_keep;
-    a->u.keep.imapflags = imapflags;
+    a->u.keep.imapflags = actionflags ? actionflags : imapflags;
     return 0;
 }
 
