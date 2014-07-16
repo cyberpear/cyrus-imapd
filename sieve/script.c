@@ -871,8 +871,9 @@ static int do_action_list(sieve_interp_t *interp,
 /* execute some bytecode */
 int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 		  void *sc, void *m,
-		  const strarray_t * , action_list_t *actions,
-		  notify_list_t *notify_list, const char **errmsg);
+		  const strarray_t * imapflags, action_list_t *actions,
+		  notify_list_t *notify_list, const char **errmsg,
+		  strarray_t *workingflags);
 
 EXPORTED int sieve_execute_bytecode(sieve_execute_t *exe, sieve_interp_t *interp,
 			   void *script_context, void *message_context) 
@@ -885,6 +886,7 @@ EXPORTED int sieve_execute_bytecode(sieve_execute_t *exe, sieve_interp_t *interp
     char actions_string[ACTIONS_STRING_LEN] = "";
     const char *errmsg = NULL;
     strarray_t imapflags = STRARRAY_INITIALIZER;
+    strarray_t workingflags = STRARRAY_INITIALIZER;
     
     if (!interp) return SIEVE_FAIL;
 
