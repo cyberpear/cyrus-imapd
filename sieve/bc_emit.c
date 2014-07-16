@@ -560,6 +560,7 @@ static int bc_action_emit(int fd, int codep, int stopcodep,
 	    if(ret < 0)
 		return -1;
 
+	    /* Write OPCODE */
 	    if(write_int(fd,bc->data[codep++].value) == -1)
 		return -1;
 
