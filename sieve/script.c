@@ -59,6 +59,7 @@
 #include "charset.h"
 #include "hash.h"
 #include "xmalloc.h"
+#include "strarray.h"
 
 #include "sieve_interface.h"
 #include "interp.h"
@@ -886,7 +887,8 @@ static int do_action_list(sieve_interp_t *interp,
 int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 		  void *sc, void *m,
 		  sieve_imapflags_t * imapflags, action_list_t *actions,
-		  notify_list_t *notify_list, const char **errmsg);
+		  notify_list_t *notify_list, const char **errmsg,
+		  strarray_t *workingflags);
 
 int sieve_execute_bytecode(sieve_execute_t *exe, sieve_interp_t *interp,
 			   void *script_context, void *message_context) 
@@ -899,6 +901,7 @@ int sieve_execute_bytecode(sieve_execute_t *exe, sieve_interp_t *interp,
     char actions_string[ACTIONS_STRING_LEN] = "";
     const char *errmsg = NULL;
     sieve_imapflags_t imapflags;
+    strarray_t workingflags = STRARRAY_INITIALIZER;
     
     if (!interp) return SIEVE_FAIL;
 
