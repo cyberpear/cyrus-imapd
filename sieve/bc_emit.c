@@ -556,6 +556,7 @@ static int bc_action_emit(int fd, int codep, int stopcodep,
 	case B_FILEINTO:
 	    /* Copy (word), Folder String, Flags Stringlist */
 
+	    /* Write OPCODE */
 	    if(write_int(fd,bc->data[codep++].value) == -1)
 		return -1;
 
