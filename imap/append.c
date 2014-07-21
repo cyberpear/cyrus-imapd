@@ -467,25 +467,26 @@ int append_fromstage(struct appendstate *as, struct body **body,
     /* Handle flags the user wants to set in the message */
     //TODO: make these case insensitive
     for (i = 0; i < nflags; i++) {
-	if (!strcmp(flag[i], "\\seen")) {
+	if (!strcasecmp(flag[i], "\\seen")) {
+	    //TODO: check rights
 	    append_setseen(as, &message_index);
 	}
-	else if (!strcmp(flag[i], "\\deleted")) {
+	else if (!strcasecmp(flag[i], "\\deleted")) {
 	    if (as->myrights & ACL_DELETEMSG) {
 		message_index.system_flags |= FLAG_DELETED;
 	    }
 	}
-	else if (!strcmp(flag[i], "\\draft")) {
+	else if (!strcasecmp(flag[i], "\\draft")) {
 	    if (as->myrights & ACL_WRITE) {
 		message_index.system_flags |= FLAG_DRAFT;
 	    }
 	}
-	else if (!strcmp(flag[i], "\\flagged")) {
+	else if (!strcasecmp(flag[i], "\\flagged")) {
 	    if (as->myrights & ACL_WRITE) {
 		message_index.system_flags |= FLAG_FLAGGED;
 	    }
 	}
-	else if (!strcmp(flag[i], "\\answered")) {
+	else if (!strcasecmp(flag[i], "\\answered")) {
 	    if (as->myrights & ACL_WRITE) {
 		message_index.system_flags |= FLAG_ANSWERED;
 	    }
