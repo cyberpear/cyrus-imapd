@@ -46,6 +46,9 @@ if header :contains "subject" "sflag2"
 if header :contains "subject" "rflag"
 {removeflag "\\answered";}
 
+#IMAP4FLAGS#
+##############################################
+
 # TODO: add imap4flags tests
 # :flags argument
 keep;
