@@ -1135,7 +1135,7 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 	    copy = ntohl(bc[ip].value);
 	    /* fall through */
 	case B_KEEP_ORIG:/*1*/
-	    res = do_keep(actions, 1, imapflags, actionflags);
+	    res = do_keep(actions, !copy, imapflags, actionflags);
 	    if (res == SIEVE_RUN_ERROR)
 		*errmsg = "Keep can not be used with Reject";
 	    actionflags = NULL;
