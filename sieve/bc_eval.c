@@ -1105,6 +1105,11 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 #endif
 
     for(ip++; ip<ip_max; ) { 
+	/* In this loop, each case must increment ip for the next iteration.
+	 * The when the case is jumped to initially, ip points to the opcode.
+	 * This should probably change to point to the first parameter to
+	 * support future extensions.
+	 */
 	int copy = 0;
 	strarray_t *actionflags = NULL;
 
@@ -1117,10 +1122,10 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 	case B_KEEP:
 	{
 	    int x;
-	    int list_len=ntohl(bc[ip].len);
+	    int list_len=ntohl(bc[ip+1].len);
 	    actionflags = strarray_new();
 
-	    ip+=2; /* skip list_len, and list data len */
+	    ip+=3; /* skip opcode, list_len, and list data len */
 
 	    for (x=0; x<list_len; x++) {
 		const char *flag
@@ -1128,7 +1133,7 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 		strarray_add_case(actionflags,flag);
 	    }
 	}
-	    copy = ntohl(bc[ip+1].value);
+	    copy = ntohl(bc[ip].value);
 	    /* fall through */
 	case B_KEEP_ORIG:/*1*/
 	    res = do_keep(actions, 1, imapflags, actionflags);
@@ -1156,10 +1161,10 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 	case B_FILEINTO:
 	{
 	    int x;
-	    int list_len=ntohl(bc[ip].len);
+	    int list_len=ntohl(bc[ip+1].len);
 	    actionflags = strarray_new();
 
-	    ip+=2; /* skip list_len, and list data len */
+	    ip+=3; /* skip opcode, list_len, and list data len */
 
 	    for (x=0; x<list_len; x++) {
 		const char *flag
@@ -1169,13 +1174,13 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 	}
 	    /* fall through */
 	case B_FILEINTO_COPY:/*19*/
-	    copy = ntohl(bc[ip+1].value);
+	    copy = ntohl(bc[ip].value);
 	    ip+=1;
 
 	    /* fall through */
 	case B_FILEINTO_ORIG:/*4*/
 	{
-	    ip = unwrap_string(bc, ip+1, &data, NULL);
+	    ip = unwrap_string(bc, ip, &data, NULL);
 
 	    res = do_fileinto(actions, data, !copy, imapflags, actionflags);
 
