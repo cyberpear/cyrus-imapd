@@ -938,7 +938,7 @@ int sieve_execute_bytecode(sieve_execute_t *exe, sieve_interp_t *interp,
 	ret = sieve_eval_bc(exe, 0, interp,
 			    script_context, message_context,
 			    &imapflags, actions, notify_list, &errmsg,
-			    workingflags);
+			    &workingflags);
 
 	if (ret < 0) {
 	    ret = do_sieve_error(SIEVE_RUN_ERROR, interp,

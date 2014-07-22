@@ -1106,6 +1106,7 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 
     for(ip++; ip<ip_max; ) { 
 	int copy = 0;
+	strarray_t *actionflags = NULL;
 
 	op=ntohl(bc[ip].op);
 	switch(op) {
@@ -1114,12 +1115,26 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 	    break;
 
 	case B_KEEP:
+	{
+	    int x;
+	    int list_len=ntohl(bc[ip].len);
+	    actionflags = strarray_new();
+
+	    ip+=2; /* skip list_len, and list data len */
+
+	    for (x=0; x<list_len; x++) {
+		const char *flag
+		ip = unwrap_string(bc, ip, &flag, NULL);
+		strarray_add_case(actionflags,flag);
+	    }
+	}
 	    copy = ntohl(bc[ip+1].value);
-	    /* TODO: add support for :flags argument */
+	    /* fall through */
 	case B_KEEP_ORIG:/*1*/
-	    res = do_keep(actions, 1, imapflags);
+	    res = do_keep(actions, 1, imapflags, actionflags);
 	    if (res == SIEVE_RUN_ERROR)
 		*errmsg = "Keep can not be used with Reject";
+	    actionflags = NULL;
 	    ip++;
 	    break;
 
@@ -1139,6 +1154,20 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 	    break;
 
 	case B_FILEINTO:
+	{
+	    int x;
+	    int list_len=ntohl(bc[ip].len);
+	    actionflags = strarray_new();
+
+	    ip+=2; /* skip list_len, and list data len */
+
+	    for (x=0; x<list_len; x++) {
+		const char *flag
+		ip = unwrap_string(bc, ip, &flag, NULL);
+		strarray_add_case(actionflags,flag);
+	    }
+	}
+	    /* fall through */
 	case B_FILEINTO_COPY:/*19*/
 	    copy = ntohl(bc[ip+1].value);
 	    ip+=1;
@@ -1146,30 +1175,14 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 	    /* fall through */
 	case B_FILEINTO_ORIG:/*4*/
 	{
-	    strarray_t *actionflags = NULL;
 	    ip = unwrap_string(bc, ip+1, &data, NULL);
-
-	    if(op==B_FILEINTO) {
-		int x;
-		int list_len=ntohl(bc[ip].len);
-		actionflags = strarray_new();
-
-		ip+=2; /* skip list_len, and list data len */
-
-		for (x=0; x<list_len; x++) {
-		    const char *flag
-		    ip = unwrap_string(bc, ip, &flag, NULL);
-		    strarray_add_case(actionflags,flag);
-
-		    //TODO: update to create a flaglist
-		}
-	    }
 
 	    res = do_fileinto(actions, data, !copy, imapflags, actionflags);
 
 	    if (res == SIEVE_RUN_ERROR)
 		*errmsg = "Fileinto can not be used with Reject";
 
+	    actionflags = NULL;
 	    break;
 	}
 
@@ -1534,7 +1547,7 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 	    if (!res)
 		res = sieve_eval_bc(exe, 1, i,
 				    sc, m, imapflags, actions,
-				    notify_list, errmsg);
+				    notify_list, errmsg, workingflags);
 
 	    break;
 	}
