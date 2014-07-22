@@ -45,6 +45,38 @@ if header :contains "subject" "sflag2"
 if header :contains "subject" "rflag"
 {removeflag "\\answered";}
 
+#IMAP4FLAGS#
+##############################################
+
+# TODO: add imap4flags tests
+# :flags argument
+keep;
+keep :copy;
+keep :flags ["keepf1", "keepf2"];
+keep :copy :flags ["keepcf1", "keepcf2"];
+
+addflag ["myflag"];
+addflag ["my flag is here"];
+removeflag ["is my"];
+
+fileinto :flags ["flags1 flags2"] "INBOX.flags";
+fileinto :copy :flags ["cflags1", "cflags2", "fllags3"] "INBOX.copy.flags";
+
+if hasflag :contains ["myflag", "here"]
+{fileinto "INBOX.myflag.here";}
+
+if hasflag :contains ["here", "is"]
+{fileinto "INBOX.here.is";}
+if hasflag :contains ["is my"]
+{fileinto "INBOX.here.is.not";}
+if hasflag :contains ["noflags"]
+{fileinto "INBOX.noflags";}
+if hasflag :contains ["my here"]
+{fileinto "INBOX.here.is";}
+
+if header :contains "subject" ["keepf1", "flags2"]
+{fileinto "INBOX.good";}
+
 #VACATION
 #############################################
 if header :contains "subject" "vacation"
