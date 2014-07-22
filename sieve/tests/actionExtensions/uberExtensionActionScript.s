@@ -45,6 +45,25 @@ if header :contains "subject" "sflag2"
 if header :contains "subject" "rflag"
 {removeflag "\\answered";}
 
+#IMAP4FLAGS#
+##############################################
+
+# TODO: add imap4flags tests
+# :flags argument
+keep;
+keep :copy;
+keep :flags ["keepf1", "keepf2"];
+keep :copy :flags ["keepcf1", "keepcf2"];
+
+fileinto :flags ["flags1", "flags2"] "INBOX.flags";
+fileinto :copy :flags ["cflags1", "cflags2", "fllags3"] "INBOX.copy.flags";
+
+if hasflag :contains ["junk", "forward"]
+{keep :copy;}
+
+if header :contains "subject" ["fileinto", "fileinto2"]
+{fileinto "INBOX.good";}
+
 #VACATION
 #############################################
 if header :contains "subject" "vacation"
