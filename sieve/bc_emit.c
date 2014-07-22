@@ -638,18 +638,20 @@ static int bc_action_emit(int fd, int codep, int stopcodep,
 	    if(ret < 0)
 		return -1;
 
-	    /* Write OPCODE */
+	    /* Write Copy */
 	    if(write_int(fd,bc->data[codep++].value) == -1)
 		return -1;
 
 	    filelen += sizeof(int);
 
+	    /* Write string length of Folder */
 	    len = bc->data[codep++].len;
 	    if(write_int(fd,len) == -1)
 		return -1;
 
 	    filelen+=sizeof(int);
 
+	    /* Write Folder */
 	    if(write(fd,bc->data[codep++].str,len) == -1)
 		return -1;
 
