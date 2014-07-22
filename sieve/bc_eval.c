@@ -1342,6 +1342,7 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 
     for(ip++; ip<ip_max; ) { 
 	int copy = 0;
+	strarray_t *actionflags = NULL;
 
 	op=ntohl(bc[ip].op);
 	switch(op) {
@@ -1386,6 +1387,7 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 	    if (res == SIEVE_RUN_ERROR)
 		*errmsg = "Fileinto can not be used with Reject";
 
+	    actionflags = NULL;
 	    break;
 	}
 
@@ -1767,7 +1769,7 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 
 	    res = sieve_eval_bc(exe, 1, i,
 				sc, m, imapflags, actions,
-				notify_list, errmsg);
+				notify_list, errmsg, workingflags);
 	    break;
 	}
 
