@@ -1128,7 +1128,7 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 	    ip+=3; /* skip opcode, list_len, and list data len */
 
 	    for (x=0; x<list_len; x++) {
-		const char *flag
+		const char *flag;
 		ip = unwrap_string(bc, ip, &flag, NULL);
 		strarray_add_case(actionflags,flag);
 	    }
