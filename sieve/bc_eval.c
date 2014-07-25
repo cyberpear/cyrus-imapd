@@ -344,7 +344,8 @@ out:
 
 /* Evaluate a bytecode test */
 static int eval_bc_test(sieve_interp_t *interp, void* m,
-			bytecode_input_t * bc, int * ip)
+			bytecode_input_t * bc, int * ip,
+			strarray_t *workingflags)
 {
     int res=0; 
     int i=*ip;
@@ -368,7 +369,7 @@ static int eval_bc_test(sieve_interp_t *interp, void* m,
 
     case BC_NOT:/*2*/
 	i+=1;
-	res = eval_bc_test(interp, m, bc, &i);
+	res = eval_bc_test(interp, m, bc, &i, workingflags);
 	if(res >= 0) res = !res; /* Only invert in non-error case */
 	break;
 
@@ -427,7 +428,7 @@ static int eval_bc_test(sieve_interp_t *interp, void* m,
 	 * in the right place */
 	for (x=0; x<list_len && !res; x++) { 
 	    int tmp;
-	    tmp = eval_bc_test(interp, m, bc, &i);
+	    tmp = eval_bc_test(interp, m, bc, &i, workingflags);
 	    if(tmp < 0) {
 		res = tmp;
 		break;
@@ -447,7 +448,7 @@ static int eval_bc_test(sieve_interp_t *interp, void* m,
 	/* return 1 unless you find one that isn't true, then return 0 */
 	for (x=0; x<list_len && res; x++) {
 	    int tmp;
-	    tmp = eval_bc_test(interp, m, bc, &i);
+	    tmp = eval_bc_test(interp, m, bc, &i, workingflags);
 	    if(tmp < 0) {
 		res = tmp;
 		break;
@@ -1451,7 +1452,7 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 	    int result;
 	   
 	    ip+=2;
-	    result=eval_bc_test(i, m, bc, &ip);
+	    result=eval_bc_test(i, m, bc, &ip, workingflags);
 	    
 	    if (result<0) {
 		*errmsg = "Invalid test";
