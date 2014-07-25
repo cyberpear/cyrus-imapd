@@ -446,6 +446,13 @@ int fileinto(void *ac, void *ic, void *sc __attribute__((unused)),
 
     printf("filing message '%s' into '%s'\n", m->name, fc->mailbox);
 
+    if (fc->actionflags && fc->actionflags->data) {
+	int n;
+	printf("\twith flags");
+	for (n = 0; n < fc->actionflags->count; n++)
+	    printf(" '%s'", fc->actionflags->data[n]);
+	printf("\n");
+    } else
     if (fc->imapflags->flag) {
 	int n;
 	printf("\twith flags");
@@ -465,6 +472,13 @@ int keep(void *ac, void *ic, void *sc __attribute__((unused)),
     int *force_fail = (int*) ic;
 
     printf("keeping message '%s'\n", m->name);
+    if (kc->actionflags && kc->actionflags->data) {
+	int n;
+	printf("\twith flags");
+	for (n = 0; n < kc->actionflags->count; n++)
+	    printf(" '%s'", kc->actionflags->data[n]);
+	printf("\n");
+    } else
     if (kc->imapflags->flag) {
 	int n;
 	printf("\twith flags");
