@@ -789,10 +789,8 @@ static int eval_bc_test(sieve_interp_t *interp, void* m,
 	int flagsi=i+4;/*the i value for the beginning of the flags*/
 
 	int numsflags=ntohl(bc[flagsi].len); // number of search flags
-	int numaflags=-1; // number of active flags
 
 	int currsf; /* current search flag */
-	int curraf; /* current active flag */
 
 	int match=ntohl(bc[i+1].value);
 	int relation=ntohl(bc[i+2].value);
@@ -829,68 +827,59 @@ static int eval_bc_test(sieve_interp_t *interp, void* m,
 	currsf=flagsi+2;
 	for(x=0; x<numsflags && !res; x++)
 	{
-	    const char *this_flag;
+	    const char *search_flag;
 
-	    currsf = unwrap_string(bc, currsf, &this_flag, NULL);
+	    currsf = unwrap_string(bc, currsf, &search_flag, NULL);
 
-	    if(interp->getheader(m, this_flag, &val) != SIEVE_OK) { // TODO: go through action_list to resolve current flags for message
-		continue; /*this flag does not exist, search the next*/
-	    }
 #if VERBOSE
 	    printf ("val %s %s %s\n", val[0], val[1], val[2]);
 #endif
 
-	    /* search through all the headers that match */
+	    /* search through all the flags */
 
-	    for (y = 0; val[y] && !res; y++)
+	    for (y=0; y < workingflags->count && !res; y++)
 	    {
-		if  (match == B_COUNT) {
-		    count++;
-		} else {
-		    /*search through all the data*/
+		const char *active_flag;
 
-		    for (z=0; z<numaflags && !res; z++)
+		active_flag = workingflags->data[y];
+
+		if (isReg) {
+		    reg= bc_compile_regex(search_flag, ctag, errbuf,
+					  sizeof(errbuf));
+		    if (!reg)
 		    {
-			const char *data_val;
-
-			curraf = unwrap_string(bc, curraf, &data_val, NULL); //TODO: assign the current active flag here (not from bc)
-
-			if (isReg) {
-			    reg= bc_compile_regex(data_val, ctag, errbuf,
-						  sizeof(errbuf));
-			    if (!reg)
-			    {
-				/* Oops */
-				res=-1;
-				goto alldone;
-			    }
-
-			    res |= comp(data_val, strlen(data_val),
-					(const char *)reg, comprock);
-			    free(reg);
-			} else {
-			    res |= comp(data_val, strlen(data_val),
-					data_val, comprock);
-			}
+			/* Oops */
+			res=-1;
+			goto alldone;
 		    }
+
+		    res |= comp(active_flag, strlen(active_flag),
+				(const char *)reg, comprock);
+		    free(reg);
+		} else {
+		    res |= comp(active_flag, strlen(active_flag),
+				search_flag, comprock);
+		}
+		if  (match == B_COUNT && res) {
+		    count++;
 		}
 	    }
 	}
 
-	if  (match == B_COUNT )
+	// TODO: support :count in hasflag
+	if  (0 && match == B_COUNT )
 	{
 	    snprintf(scount, SCOUNT_SIZE, "%u", count);
 	    /*search through all the data*/
-	    curraf=flagsi+2;
-	    for (z=0; z<numaflags && !res; z++)
+	    for (z=0; z < workingflags->count && !res; z++)
 	    {
-		const char *data_val;
+		const char *active_flag;
 
-		curraf = unwrap_string(bc, curraf, &data_val, NULL);
+		active_flag = workingflags->data[z];
 #if VERBOSE
-		printf("%d, %s \n", count, data_val);
+		printf("%d, %s \n", count, active_flag);
 #endif
-		res |= comp(scount, strlen(scount), data_val, comprock);
+		res |= comp(scount, strlen(scount), active_flag, comprock);
 	    }
 
 	}
