@@ -46,6 +46,7 @@
 #define SIEVE_H
 
 #include <stdio.h>
+#include "strarray.h"
 
 #define SIEVE_VERSION "CMU Sieve 2.4"
 
