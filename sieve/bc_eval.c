@@ -63,7 +63,6 @@
 
 #include <string.h>
 #include <ctype.h>
-#include <regex.h>
 
 #define SCOUNT_SIZE 20
 char scount[SCOUNT_SIZE];
