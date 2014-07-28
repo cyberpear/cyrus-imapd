@@ -189,7 +189,6 @@ int do_keep(action_list_t *a, int cancel_keep, sieve_imapflags_t *imapflags,
 	    strarray_t *actionflags)
 {
     action_list_t *b = NULL;
-    action_list_t *prev = NULL;
 
     /* see if this conflicts with any previous actions taken on this message */
     while (a != NULL) {
