@@ -160,6 +160,7 @@ static struct ftags *canon_ftags(struct ftags *f);
 static void free_ftags(struct ftags *d);
 
 static int verify_stringlist(stringlist_t *sl, int (*verify)(char *));
+static int verify_flaglist(stringlist_t *sl);
 static int verify_mailbox(char *s);
 static int verify_address(char *s);
 static int verify_header(char *s);
@@ -300,7 +301,7 @@ action: REJCT STRING             { if (!parse_script->support.reject) {
                                     yyerror("imap4flags MUST be enabled with \"require\"");
                                     YYERROR;
                                    }
-                                  if (!verify_stringlist($2, verify_flag)) {
+                                  if (!verify_flaglist($2)) {
                                     YYERROR; /* vf should call yyerror() */
                                   }
                                   $$ = new_command(SETFLAG);
@@ -310,7 +311,7 @@ action: REJCT STRING             { if (!parse_script->support.reject) {
                                     yyerror("imap4flags MUST be enabled with \"require\"");
                                     YYERROR;
                                     }
-                                  if (!verify_stringlist($2, verify_flag)) {
+                                  if (!verify_flaglist($2)) {
                                     YYERROR; /* vf should call yyerror() */
                                   }
                                   $$ = new_command(ADDFLAG);
@@ -320,7 +321,7 @@ action: REJCT STRING             { if (!parse_script->support.reject) {
                                     yyerror("imap4flags MUST be enabled with \"require\"");
                                     YYERROR;
                                     }
-                                  if (!verify_stringlist($2, verify_flag)) {
+                                  if (!verify_flaglist($2)) {
                                     YYERROR; /* vf should call yyerror() */
                                   }
                                   $$ = new_command(REMOVEFLAG);
@@ -511,7 +512,7 @@ test:     ANYOF testlist	 { $$ = new_test(ANYOF); $$->u.tl = $2; }
 
 	| HASFLAG htags stringlist
 				 {
-				     if (!verify_stringlist($3, verify_flag)) {
+				     if (!verify_flaglist($3)) {
 					 YYERROR; /* vu should call yyerror() */
 				     }
 				     
@@ -743,7 +744,7 @@ ftags: /* empty */		 { $$ = new_ftags(); }
 				   if ($$->flags != NULL) {
 			yyerror("duplicate flags tag"); YYERROR; }
 				   else {
-				    if (!verify_stringlist($3, verify_flag)) {
+				    if (!verify_flaglist($3)) {
 				     YYERROR; /* vf should call yyerror() */
 				    }
 				   $$->flags = $3; }
@@ -1182,7 +1183,6 @@ static struct ftags *new_ftags(void)
 
 static struct ftags *canon_ftags(struct ftags *f)
 {
-    /* TODO: change "flag1 flag2" to ["flag1", "flag2"] */
     return f;
 }
 
@@ -1195,6 +1195,37 @@ static void free_ftags(struct ftags *f)
 static int verify_stringlist(stringlist_t *sl, int (*verify)(char *))
 {
     for (; sl != NULL && verify(sl->s); sl = sl->next) ;
+    return (sl == NULL);
+}
+
+static int verify_flaglist(stringlist_t *sl)
+{
+    for (; sl != NULL ; sl = sl->next) {
+	char *pointer = sl->s;
+	// split the string into separate flags at a space (' ')
+	while ((pointer = strchr(pointer,' '))) {
+	    // NULL terminate the first substring
+	    *pointer = 0;
+	    // Increment the pointer to look point to the beginning of the
+	    // next substring
+	    pointer++;
+	    // Check that we don't just have another space
+	    if (*pointer != ' ') {
+		// If there's another non-zero length string,
+		// insert it into the stringlist
+		if (strlen(pointer)) {
+		    sl->next = new_sl(xstrdup(pointer), sl->next);
+		}
+		// reallocate the previously parsed string
+		sl->s = xrealloc(sl->s, strlen(sl->s) + 1);
+		break;
+	    }
+	}
+	// has the side effect of lower-casing each flag
+	if (!verify_flag(sl->s)) {
+	    break;
+	}
+    }
     return (sl == NULL);
 }
 
@@ -1304,7 +1335,6 @@ static int verify_relat(char *r)
 
 
 
-/* TODO: allow space separated list of flags */
 static int verify_flag(char *f)
 {
     if (f[0] == '\\') {
