@@ -209,7 +209,7 @@ int do_keep(action_list_t *a, int cancel_keep, sieve_imapflags_t *imapflags,
 	    }
 	    /* add the action to the end of the list */
 	    b->next = a;
-	    return 0;
+	    break;
 	}
 	b = a;
 	a = a->next;
@@ -224,7 +224,7 @@ int do_keep(action_list_t *a, int cancel_keep, sieve_imapflags_t *imapflags,
 	b->next = a;
     }
     a->a = ACTION_KEEP;
-    a->cancel_keep = cancel_keep;
+    a->cancel_keep |= cancel_keep;
     a->u.keep.imapflags = imapflags;
     a->u.keep.actionflags = actionflags;
     return 0;
