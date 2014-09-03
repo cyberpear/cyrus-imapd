@@ -175,10 +175,10 @@ void free_test(test_t *t)
     case STRUE:
 	break;
 
+    case HASFLAG:
     case HEADER:
 	free_sl(t->u.h.sl);
 	free_sl(t->u.h.pl);
-	
 	break;
 
     case ADDRESS:
@@ -218,6 +218,7 @@ void free_tree(commandlist_t *cl)
 
 	case FILEINTO:
 	    if (cl->u.f.folder) free(cl->u.f.folder);
+	    if (cl->u.f.flags) free_sl(cl->u.f.flags);
 	    break;
 
 	case REDIRECT:
@@ -241,6 +242,9 @@ void free_tree(commandlist_t *cl)
 	    break;
 
 	case KEEP:
+	    if (cl->u.k.flags) free_sl(cl->u.k.flags);
+	    break;
+
 	case STOP:
 	case DISCARD:
 	case RETURN:
