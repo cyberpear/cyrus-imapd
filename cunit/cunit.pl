@@ -746,7 +746,7 @@ sub suite_generate_wrap($)
     print WRAP "    CU_TEST_INFO_NULL\n};\n";
 
     print WRAP "const CU_SuiteInfo $suite->{suitevar} = {" .
-	       "\"$suite->{name}\", NULL, NULL, _tests};\n";
+	       "\"$suite->{name}\", NULL, NULL, NULL, NULL, _tests};\n";
     close WRAP;
 
     atomic_rewrite_end($suite->{wrap});
