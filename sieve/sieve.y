@@ -512,6 +512,11 @@ test:     ANYOF testlist	 { $$ = new_test(ANYOF); $$->u.tl = $2; }
 
 	| HASFLAG htags stringlist
 				 {
+				     if (!parse_script->support.imap4flags) {
+                                       yyerror("imap4flags MUST be enabled with \"require\"");
+				       YYERROR;
+				     }
+
 				     if (!verify_flaglist($3)) {
 					 YYERROR; /* vu should call yyerror() */
 				     }
@@ -740,7 +745,11 @@ ftags: /* empty */		 { $$ = new_ftags(); }
 				   if ($$->copy != -1) {
 			yyerror("duplicate copy tag"); YYERROR; }
 				   else { $$->copy = $2; } }
-	| ftags FLAGS stringlist { $$ = $1;
+	| ftags FLAGS stringlist { if (!parse_script->support.imap4flags) {
+				     yyerror("imap4flags MUST be enabled with \"require\"");
+	                             YYERROR;
+                                   }
+				   $$ = $1;
 				   if ($$->flags != NULL) {
 			yyerror("duplicate flags tag"); YYERROR; }
 				   else {
