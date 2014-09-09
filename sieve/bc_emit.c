@@ -560,6 +560,7 @@ static int bc_action_emit(int fd, int codep, int stopcodep,
 	    ret = bc_stringlist_emit(fd, &codep, bc);
 	    if(ret < 0)
 		return -1;
+	    filelen += ret;
 
 	    /* Write Copy */
 	    if(write_int(fd,bc->data[codep++].value) == -1)
@@ -583,7 +584,6 @@ static int bc_action_emit(int fd, int codep, int stopcodep,
 		return -1;
 
 	    filelen += len + ret;
-	    filelen += ret;
 
 	    break;
 
