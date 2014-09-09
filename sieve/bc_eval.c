@@ -1506,8 +1506,7 @@ int sieve_eval_bc(sieve_execute_t *exe, int is_incl, sieve_interp_t *i,
 	    ip = unwrap_string(bc, ip, &data, NULL);
 
 	    res = do_setflag(actions, data);
-	    strarray_free(workingflags);
-	    workingflags = strarray_new();
+	    strarray_truncate(workingflags, 0);
 	    strarray_add_case(workingflags, data);
 
 	    if (res == SIEVE_RUN_ERROR) {
