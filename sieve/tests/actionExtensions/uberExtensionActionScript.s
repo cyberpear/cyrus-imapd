@@ -56,13 +56,20 @@ keep :copy;
 keep :flags ["keepf1", "keepf2"];
 keep :copy :flags ["keepcf1", "keepcf2"];
 
-fileinto :flags ["flags1", "flags2"] "INBOX.flags";
+addflag ["myflag"];
+addflag ["my flag is here"];
+removeflag ["is my"];
+
+fileinto :flags ["flags1 flags2"] "INBOX.flags";
 fileinto :copy :flags ["cflags1", "cflags2", "fllags3"] "INBOX.copy.flags";
 
-if hasflag :contains ["junk", "forward"]
-{keep :copy;}
+if hasflag :contains ["myflag", "here"]
+{fileinto "INBOX.myflag.here";}
 
-if header :contains "subject" ["fileinto", "fileinto2"]
+if hasflag :contains ["here", "is"]
+{fileinto "INBOX.here.is";}
+
+if header :contains "subject" ["keepf1", "flags2"]
 {fileinto "INBOX.good";}
 
 #VACATION
