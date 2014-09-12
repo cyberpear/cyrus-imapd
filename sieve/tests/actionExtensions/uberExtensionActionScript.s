@@ -68,6 +68,12 @@ if hasflag :contains ["myflag", "here"]
 
 if hasflag :contains ["here", "is"]
 {fileinto "INBOX.here.is";}
+if hasflag :contains ["is my"]
+{fileinto "INBOX.here.is.not";}
+if hasflag :contains ["noflags"]
+{fileinto "INBOX.noflags";}
+if hasflag :contains ["my here"]
+{fileinto "INBOX.here.is";}
 
 if header :contains "subject" ["keepf1", "flags2"]
 {fileinto "INBOX.good";}
