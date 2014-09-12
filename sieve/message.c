@@ -203,6 +203,7 @@ int do_keep(action_list_t *a, int cancel_keep, sieve_imapflags_t *imapflags,
 	    }
 	    /* cut this action out of the list */
 	    b->next = a->next;
+	    a->next = NULL;
 	    /* find the end of the list */
 	    while (b->next != NULL) {
 		b = b-> next;
