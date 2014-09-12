@@ -567,7 +567,7 @@ static int bc_action_generate(int codep, bytecode_info_t *retval,
 		   VALUE copy
 		   STRING folder
 		*/
-		if(!atleast(retval,codep+4)) return -1;
+		if (!atleast(retval, codep+1)) return -1;
 		retval->data[codep++].op = B_FILEINTO;
 		/* TODO: find a way to indicate whether to use actionflags
 		 * in the event that the flaglist is empty (does this mean
@@ -576,6 +576,7 @@ static int bc_action_generate(int codep, bytecode_info_t *retval,
 		 */
 		codep = bc_stringlist_generate(codep,retval,c->u.f.flags);
 		if(codep == -1) return -1;
+		if (!atleast(retval, codep+3)) return -1;
 		retval->data[codep++].value = c->u.f.copy;
 		retval->data[codep++].len = strlen(c->u.f.folder);
 		retval->data[codep++].str = c->u.f.folder;
