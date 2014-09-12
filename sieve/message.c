@@ -125,6 +125,7 @@ int do_fileinto(action_list_t *a, const char *mbox, int cancel_keep,
 	    }
 	    /* cut this action out of the list */
 	    b->next = a->next;
+	    a->next = NULL;
 	    /* find the end of the list */
 	    while (b->next != NULL) {
 		b = b-> next;
