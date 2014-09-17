@@ -121,7 +121,7 @@ int do_fileinto(action_list_t *a, const char *mbox, int cancel_keep,
 	    }
 	    /* add the action to the end of the list */
 	    b->next = a;
-	    return 0;
+	    break;
 	}
 	b = a;
 	a = a->next;
