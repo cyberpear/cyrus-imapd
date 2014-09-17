@@ -208,7 +208,7 @@ int do_keep(action_list_t *a, int cancel_keep, strarray_t *imapflags,
 
     if(a == NULL) {
 	/* add to the action list */
-	a = (action_list_t *) xmalloc(sizeof(action_list_t));
+	a = new_action_list();
 	if (a == NULL)
 	    return SIEVE_NOMEM;
 	a->next = NULL;
