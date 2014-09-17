@@ -138,17 +138,18 @@ int do_fileinto(action_list_t *a, const char *mbox, int cancel_keep,
 	a = a->next;
     }
 
-    /* add to the action list */
-    a = (action_list_t *) xmalloc(sizeof(action_list_t));
-    if (a == NULL)
-	return SIEVE_NOMEM;
+    if (a == NULL) {
+	/* add to the action list */
+	a = new_action_list();
+	if (a == NULL)
+	    return SIEVE_NOMEM;
+	b->next = a;
+    }
     a->a = ACTION_FILEINTO;
-    a->cancel_keep = cancel_keep;
+    a->cancel_keep |= cancel_keep;
     a->u.fil.mailbox = mbox;
     a->u.fil.imapflags = imapflags;
     a->u.fil.actionflags = actionflags;
-    b->next = a;
-    a->next = NULL;
     return 0;
 }
 
