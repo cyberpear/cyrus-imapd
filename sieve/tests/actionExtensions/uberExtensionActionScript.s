@@ -1,4 +1,5 @@
-require ["reject", "fileinto", "imapflags", "vacation", "notify"];
+require ["reject", "fileinto", "imapflags", "vacation", "notify",
+	"copy", "imap4flags"];
 
 #this is for the extra thigns we have added to sieve
 
