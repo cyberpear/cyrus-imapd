@@ -109,7 +109,7 @@ int do_fileinto(action_list_t *a, const char *mbox, int cancel_keep,
 	if (a->a == ACTION_FILEINTO && !strcmp(a->u.fil.mailbox, mbox)) {
 	    /* don't bother doing it twice */
 	    /* check that we have a valid action */
-	    if(b == NULL) {
+	    if (b == NULL) {
 		return SIEVE_INTERNAL_ERROR;
 	    }
 	    /* cut this action out of the list */
