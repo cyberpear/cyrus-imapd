@@ -188,7 +188,7 @@ int do_keep(action_list_t *a, int cancel_keep, strarray_t *imapflags,
 	if (a->a == ACTION_KEEP) {
 	    /* don't bother doing it twice */
 	    /* check that we have a valid action */
-	    if(b == NULL) {
+	    if (b == NULL) {
 		return SIEVE_INTERNAL_ERROR;
 	    }
 	    /* cut this action out of the list */
