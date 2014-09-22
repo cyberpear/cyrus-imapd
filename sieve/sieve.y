@@ -518,7 +518,7 @@ test:     ANYOF testlist	 { $$ = new_test(ANYOF); $$->u.tl = $2; }
 				     }
 
 				     if (!verify_flaglist($3)) {
-					 YYERROR; /* vu should call yyerror() */
+					 YYERROR; /* vf should call yyerror() */
 				     }
 				     
 				     $2 = canon_htags($2);
