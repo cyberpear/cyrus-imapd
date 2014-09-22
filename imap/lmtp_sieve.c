@@ -520,12 +520,21 @@ static int sieve_fileinto(void *ac,
 	ret = autosieve_createfolder(sd->username, sd->authstate, namebuf);
 
 	/* Try to deliver the mail again. */
-	if (!ret)
+	if (!ret) {
+	    if(fc->actionflags) {
+	    ret = deliver_mailbox(md->f, mdata->content, mdata->stage, md->size,
+				  fc->actionflags,
+				  (char *) sd->username, sd->authstate, md->id,
+				  sd->username, mdata->notifyheader,
+				  namebuf, md->date, quotaoverride, 0);
+	    } else {
 	    ret = deliver_mailbox(md->f, mdata->content, mdata->stage, md->size,
 				  fc->imapflags,
 				  (char *) sd->username, sd->authstate, md->id,
 				  sd->username, mdata->notifyheader,
 				  namebuf, md->date, quotaoverride, 0);
+	    }
+	}
     }
 
     if (!ret) {
