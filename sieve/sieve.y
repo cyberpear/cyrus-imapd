@@ -157,7 +157,7 @@ static struct dtags *canon_dtags(struct dtags *d);
 static void free_dtags(struct dtags *d);
 static struct ftags *new_ftags(void);
 static struct ftags *canon_ftags(struct ftags *f);
-static void free_ftags(struct ftags *d);
+static void free_ftags(struct ftags *f);
 
 static int verify_stringlist(stringlist_t *sl, int (*verify)(char *));
 static int verify_flaglist(stringlist_t *sl);
