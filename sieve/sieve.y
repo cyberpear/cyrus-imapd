@@ -335,7 +335,7 @@ action: REJCT STRING             { if (!parse_script->support.reject) {
 				   }
   				   $$ = build_vacation(VACATION,
 					    canon_vtags(parse_script, $2), $3); }
-        | SETFLAG stringlist     { if (!(parse_script->support.imapflags || 
+        | SETFLAG stringlist     { if (!(parse_script->support.imapflags ||
 					parse_script->support.imap4flags)) {
                                     yyerror(parse_script, "imap4flags MUST be enabled with \"require\"");
                                     YYERROR;
@@ -345,7 +345,7 @@ action: REJCT STRING             { if (!parse_script->support.reject) {
                                   }
                                   $$ = new_command(SETFLAG);
                                   $$->u.sl = $2; }
-         | ADDFLAG stringlist     { if (!(parse_script->support.imapflags || 
+         | ADDFLAG stringlist     { if (!(parse_script->support.imapflags ||
 					parse_script->support.imap4flags)) {
                                     yyerror(parse_script, "imap4flags MUST be enabled with \"require\"");
                                     YYERROR;
@@ -355,7 +355,7 @@ action: REJCT STRING             { if (!parse_script->support.reject) {
                                   }
                                   $$ = new_command(ADDFLAG);
                                   $$->u.sl = $2; }
-         | REMOVEFLAG stringlist  { if (!(parse_script->support.imapflags || 
+         | REMOVEFLAG stringlist  { if (!(parse_script->support.imapflags ||
 					parse_script->support.imap4flags)) {
                                     yyerror(parse_script, "imap4flags MUST be enabled with \"require\"");
                                     YYERROR;
@@ -585,7 +585,7 @@ test:     ANYOF testlist	 { $$ = new_test(ANYOF); $$->u.tl = $2; }
 				     if (!verify_flaglist(parse_script, $3)) {
 					 YYERROR; /* vf should call yyerror() */
 				     }
-				     
+
 				     $2 = canon_htags($2);
 #ifdef ENABLE_REGEX
 				     if ($2->comptag == REGEX)
