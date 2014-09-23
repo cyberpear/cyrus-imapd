@@ -181,7 +181,7 @@ static struct dttags *canon_dttags(struct dttags *dt);
 static void free_dttags(struct dttags *b);
 static struct ftags *new_ftags(void);
 static struct ftags *canon_ftags(struct ftags *f);
-static void free_ftags(struct ftags *d);
+static void free_ftags(struct ftags *f);
 
 static int verify_stringlist(sieve_script_t*, strarray_t *sl, int (*verify)(sieve_script_t*, char *));
 static int verify_flaglist(sieve_script_t*, strarray_t *sl);
