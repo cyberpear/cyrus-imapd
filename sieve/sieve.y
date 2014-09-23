@@ -220,7 +220,7 @@ extern void yyrestart(FILE *f);
 %type <cl> commands command action elsif block
 %type <sl> stringlist strings
 %type <test> test
-%type <nval> comptag relcomp sizetag addrparttag addrorenv location copy
+%type <nval> comptag relcomp sizetag addrparttag addrorenv location copy rtags
 %type <testl> testlist tests
 %type <htag> htags
 %type <aetag> aetags
@@ -280,7 +280,7 @@ action: REJCT STRING             { if (!parse_script->support.reject) {
 				     YYERROR; /* vm should call yyerror() */
 				   }
 	                           $$ = build_fileinto(FILEINTO, canon_ftags($2), $3); }
-	| REDIRECT copy STRING   { if (!verify_address($3)) {
+	| REDIRECT rtags STRING   { if (!verify_address($3)) {
 				     YYERROR; /* va should call yyerror() */
 				   }
 	                           $$ = build_redirect(REDIRECT, $2, $3); }
@@ -732,8 +732,7 @@ sizetag: OVER			 { $$ = OVER; }
 	| UNDER			 { $$ = UNDER; }
 	;
 
-copy: /* empty */		 { $$ = 0; }
-	| COPY			 { if (!parse_script->support.copy) {
+copy: COPY			 { if (!parse_script->support.copy) {
 				     yyerror("copy MUST be enabled with \"require\"");
 	                             YYERROR;
                                    }
@@ -758,6 +757,13 @@ ftags: /* empty */		 { $$ = new_ftags(); }
 				    }
 				   $$->flags = $3; }
 				 }
+        ;
+
+rtags: /* empty */		 { $$ = 0; }
+	| rtags copy		 { $$ = $1;
+				   if ($$ != 0) {
+			yyerror("duplicate copy tag"); YYERROR; }
+				   else { $$ = $2; } }
         ;
 
 testlist: '(' tests ')'		 { $$ = $2; }
