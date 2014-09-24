@@ -785,15 +785,17 @@ static int eval_bc_test(sieve_interp_t *interp, void* m,
     {
 	const char** val;
 
-	int flagsi=i+4;/*the i value for the beginning of the flags*/
+	int haystacksi=i+5;/*the i value for the beginning of the variables*/
+	int needlesi=(ntohl(bc[haystacksi+1].value)/4);
 
-	int numsflags=ntohl(bc[flagsi].len); // number of search flags
+	int numsflags=ntohl(bc[needlesi].len); // number of search flags
 
 	int currsf; /* current search flag */
 
-	int match=ntohl(bc[i+1].value);
-	int relation=ntohl(bc[i+2].value);
-	int comparator=ntohl(bc[i+3].value);
+	/* ntohl(bc[i+1].value) is unused "index" */
+	int match=ntohl(bc[i+2].value);
+	int relation=ntohl(bc[i+3].value);
+	int comparator=ntohl(bc[i+4].value);
 	int count=0;
 	int isReg = (match==B_REGEX);
 	int ctag = 0;
@@ -823,7 +825,7 @@ static int eval_bc_test(sieve_interp_t *interp, void* m,
 	}
 
 	/*search through all the flags for the flag*/
-	currsf=flagsi+2;
+	currsf=needlesi+2;
 	for(x=0; x<numsflags && !res; x++)
 	{
 	    const char *search_flag;
@@ -884,7 +886,7 @@ static int eval_bc_test(sieve_interp_t *interp, void* m,
 	}
 
 	/* Update IP */
-	i=(ntohl(bc[flagsi+1].value)/4);
+	i=(ntohl(bc[needlesi+1].value)/4);
 
 	break;
 	/* TODO: implement hasflag test */
