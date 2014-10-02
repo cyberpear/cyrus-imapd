@@ -66,13 +66,13 @@ fileinto :copy :flags ["cflags1", "cflags2", "fllags3"] "INBOX.copy.flags";
 if hasflag :contains ["myflag", "here"]
 {fileinto "INBOX.myflag.here";}
 
-if hasflag :contains ["here", "is"]
+if hasflag ["here", "is"]
 {fileinto "INBOX.here.is";}
-if hasflag :contains ["is my"]
+if hasflag ["is my"]
 {fileinto "INBOX.here.is.not";}
-if hasflag :contains ["noflags"]
+if hasflag ["noflags"]
 {fileinto "INBOX.noflags";}
-if hasflag :contains ["my here"]
+if hasflag ["my here"]
 {fileinto "INBOX.here.is";}
 
 if header :contains "subject" ["keepf1", "flags2"]

@@ -645,6 +645,7 @@ int main(int argc, char *argv[])
 
     if (m)
 	free_msg(m);
+    strarray_fini(&mark);
 
     return 0;
 }

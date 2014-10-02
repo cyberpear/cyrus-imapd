@@ -1,0 +1,3 @@
+#! /bin/bash
+
+./configure --enable-unit-tests --disable-shared CFLAGS='-g -O0' --enable-event-notification --enable-maintainer-mode --enable-coverage
