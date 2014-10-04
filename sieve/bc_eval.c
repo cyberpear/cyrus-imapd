@@ -826,9 +826,9 @@ envelope_err:
 	int haystacksi=i+5;/*the i value for the beginning of the variables*/
 	int needlesi=(ntohl(bc[haystacksi+1].value)/4);
 
-	int numsflags=ntohl(bc[needlesi].len); // number of search flags
+	int numneedles=ntohl(bc[needlesi].len); // number of search flags
 
-	int currsf; /* current search flag */
+	int currneedle; /* current needle */
 
 	/* ntohl(bc[i+1].value) is unused "index" */
 	int match=ntohl(bc[i+2].value);
@@ -862,13 +862,31 @@ envelope_err:
 	    break;
 	}
 
-	/*search through all the flags for the flag*/
-	currsf=needlesi+2;
-	for(x=0; x<numsflags && !res; x++)
+	if  (match == B_COUNT )
 	{
-	    const char *search_flag;
+	    count = workingflags->count;
+	    snprintf(scount, SCOUNT_SIZE, "%u", count);
+	    /*search through all the data*/
+	    currneedle=needlesi+2;
+	    for (z=0; z<numneedles && !res; z++)
+	    {
+		const char *this_needle;
 
-	    currsf = unwrap_string(bc, currsf, &search_flag, NULL);
+		currneedle = unwrap_string(bc, currneedle, &this_needle, NULL);
+#if VERBOSE
+		printf("%d, %s \n", count, data_val);
+#endif
+		res |= comp(scount, strlen(scount), this_needle, comprock);
+	    }
+	} else {
+
+	/* search through the haystack for the needles */
+	currneedle=needlesi+2;
+	for(x=0; x<numneedles && !res; x++)
+	{
+	    const char *this_needle;
+
+	    currneedle = unwrap_string(bc, currneedle, &this_needle, NULL);
 
 #if VERBOSE
 	    printf ("val %s %s %s\n", val[0], val[1], val[2]);
@@ -883,7 +901,7 @@ envelope_err:
 		active_flag = workingflags->data[y];
 
 		if (isReg) {
-		    reg= bc_compile_regex(search_flag, ctag, errbuf,
+		    reg= bc_compile_regex(this_needle, ctag, errbuf,
 					  sizeof(errbuf));
 		    if (!reg)
 		    {
@@ -897,37 +915,16 @@ envelope_err:
 		    free(reg);
 		} else {
 		    res |= comp(active_flag, strlen(active_flag),
-				search_flag, comprock);
-		}
-		if  (match == B_COUNT && res) {
-		    count++;
+				this_needle, comprock);
 		}
 	    }
 	}
-
-	// TODO: support :count in hasflag
-	if  (0 && match == B_COUNT )
-	{
-	    snprintf(scount, SCOUNT_SIZE, "%u", count);
-	    /*search through all the data*/
-	    for (z=0; z < workingflags->count && !res; z++)
-	    {
-		const char *active_flag;
-
-		active_flag = workingflags->data[z];
-#if VERBOSE
-		printf("%d, %s \n", count, active_flag);
-#endif
-		res |= comp(scount, strlen(scount), active_flag, comprock);
-	    }
-
 	}
 
 	/* Update IP */
 	i=(ntohl(bc[needlesi+1].value)/4);
 
 	break;
-	/* TODO: implement hasflag test */
 
     }
     case BC_BODY:/*10*/
