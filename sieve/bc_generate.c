@@ -332,8 +332,8 @@ static int bc_test_generate(int codep, bytecode_info_t *retval, test_t *t)
 	break;
     case HEADER:
     case HASFLAG:
-	/* (BC_HEADER | BC_HASFLAG) { c: comparator } { haystacks : string list }
-	   { patterns : string list } 
+	/* (BC_HEADER | BC_HASFLAG) { i: index } { c: comparator }
+	   { haystacks : string list } { patterns : string list } 
 	*/
       
 	if(!atleast(retval,codep + 1)) return -1;
@@ -342,7 +342,7 @@ static int bc_test_generate(int codep, bytecode_info_t *retval, test_t *t)
       
 	/* index */
 	if(!atleast(retval,codep + 1)) return -1;
-	retval->data[codep++].value = t->u.ae.index;
+	retval->data[codep++].value = t->u.h.index;
 
 	/* comparator */
 	codep = bc_comparator_generate(codep, retval,
@@ -361,7 +361,11 @@ static int bc_test_generate(int codep, bytecode_info_t *retval, test_t *t)
 	break;
     case ADDRESS:
     case ENVELOPE:
-	/* (BC_ADDRESS | BC_ENVELOPE) {c : comparator} 
+	/* BC_ADDRESS {i : index } {c : comparator}
+	   (B_ALL | B_LOCALPART | ...) { header : string list }
+	   { pattern : string list }
+
+	   BC_ENVELOPE {c : comparator}
 	   (B_ALL | B_LOCALPART | ...) { header : string list }
 	   { pattern : string list } */
       
@@ -459,11 +463,11 @@ static int bc_test_generate(int codep, bytecode_info_t *retval, test_t *t)
 	break;
     case DATE:
     case CURRENTDATE:
-	/* BC_DATE { time-zone: string} { c: comparator }
+	/* BC_DATE { i: index } { time-zone: string} { c: comparator }
 	 *         { header-name : string } { date-part: string }
 	 *         { key-list : string list }
 	 *
-	 * BC_CURRENTDATE { time-zone: string} { c: comparator }
+	 * BC_CURRENTDATE { i: index } { time-zone: string} { c: comparator }
 	 *         { date-part: string } { key-list : string list }
 	*/
 
