@@ -55,5 +55,8 @@ EXPORTED int verify_flaglist(strarray_t *sl)
     }
     strarray_free(resplit);
     free(joined);
+    if(!sl->count) {
+	strarray_add(sl, xstrdup(""));
+    }
     return sl->count;
 }
