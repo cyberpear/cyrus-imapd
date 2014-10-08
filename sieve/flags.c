@@ -51,12 +51,12 @@ EXPORTED int verify_flaglist(strarray_t *sl)
 	     */
 	    continue;
 	}
-	strarray_add_case(sl, xstrdup(resplit->data[i]));
+	strarray_add_case(sl, resplit->data[i]);
     }
     strarray_free(resplit);
     free(joined);
     if(!sl->count) {
-	strarray_add(sl, xstrdup(""));
+	strarray_add(sl, "");
     }
     return sl->count;
 }
