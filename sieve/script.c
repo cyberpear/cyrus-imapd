@@ -773,9 +773,6 @@ static int do_action_list(sieve_interp_t *interp,
  
 	case ACTION_SETFLAG:
 	    strarray_fini(imapflags);
-	    strarray_add_case(imapflags, a->u.fla.flag);
-	    free(interp->lastitem);
-	    interp->lastitem = xstrdup(a->u.fla.flag);
 	    break;
 	case ACTION_ADDFLAG:
 	    strarray_add_case(imapflags, a->u.fla.flag);
