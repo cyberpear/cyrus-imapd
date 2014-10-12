@@ -332,9 +332,12 @@ static int bc_test_generate(int codep, bytecode_info_t *retval, test_t *t)
 	break;
     case HEADER:
     case HASFLAG:
-	/* (BC_HEADER | BC_HASFLAG) { i: index } { c: comparator }
-	   { haystacks : string list } { patterns : string list } 
-	*/
+	/* BC_HEADER { i: index } { c: comparator }
+	 * { haystacks : string list } { patterns : string list }
+	 *
+	 * BC_HASFLAG { c: comparator }
+	 * { haystacks : string list } { patterns : string list }
+	 */
       
 	if(!atleast(retval,codep + 1)) return -1;
 	retval->data[codep++].op = (t->type == HEADER)
