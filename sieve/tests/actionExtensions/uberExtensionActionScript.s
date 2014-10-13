@@ -49,39 +49,20 @@ if header :contains "subject" "rflag"
 
 #IMAP4FLAGS#
 ##############################################
+if header :contains "subject" "imap4flags"
+{
+setflag "existing";
+keep :flags "keepflag";
+fileinto :flags ["fileinto f2"] "INBOX.fileinto.flags";
 
-# TODO: add imap4flags tests
-# :flags argument
-keep;
-keep :copy;
-keep :flags ["keepf1", "keepf2"];
-keep :copy :flags ["keepcf1", "keepcf2"];
-
-addflag ["myflag"];
+addflag ["flag0", "flag1"];
 addflag ["my flag is here"];
 removeflag ["is my"];
 
-fileinto :flags ["flags1 flags2"] "INBOX.flags";
-fileinto :copy :flags ["cflags1", "cflags2", "fllags3"] "INBOX.copy.flags";
+fileinto "INBOX.fileinto.internalflags";
+fileinto :flags "" "INBOX.fileinto.nullflags";
 
-if hasflag :contains ["myflag", "here"]
-{fileinto "INBOX.myflag.here";}
-
-if hasflag ["here", "is"]
-{fileinto "INBOX.here.is";}
-if hasflag ["is my"]
-{fileinto "INBOX.here.is.not";}
-if hasflag ["noflags"]
-{fileinto "INBOX.noflags";}
-if hasflag ["my here"]
-{fileinto "INBOX.here.is";}
-
-if header :contains "subject" ["keepf1", "flags2"]
-{fileinto "INBOX.good";}
-
-setflag "flag";
-if hasflag :count "lt" :comparator "i;ascii-numeric" ["2"]
-{fileinto "INBOX.flags.count";}
+}
 
 #VACATION
 #############################################
@@ -121,3 +102,4 @@ if header :contains "subject" "n2"
 
 if header :contains "subject" "denotify" 
 {denotify;}
+
