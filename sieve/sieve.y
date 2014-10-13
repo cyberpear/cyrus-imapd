@@ -933,7 +933,7 @@ copy: COPY			 { if (!parse_script->support.copy) {
 
 ftags: /* empty */		 { $$ = new_ftags(); }
 	| ftags copy		 { $$ = $1;
-				   if ($$->copy != -1) {
+				   if ($$->copy) {
 			yyerror(parse_script, "duplicate copy tag"); YYERROR; }
 				   else { $$->copy = $2; } }
 	| ftags FLAGS stringlist { if (!parse_script->support.imap4flags) {
@@ -954,7 +954,7 @@ ftags: /* empty */		 { $$ = new_ftags(); }
 
 rtags: /* empty */		 { $$ = 0; }
 	| rtags copy		 { $$ = $1;
-				   if ($$ != 0) {
+				   if ($$) {
 			yyerror(parse_script, "duplicate copy tag"); YYERROR; }
 				   else { $$ = $2; } }
         ;
@@ -1454,7 +1454,7 @@ static struct ftags *new_ftags(void)
 {
     struct ftags *f = (struct ftags *) xmalloc(sizeof(struct ftags));
 
-    f->copy = -1;
+    f->copy = 0;
     f->flags  = NULL;
 
     return f;
