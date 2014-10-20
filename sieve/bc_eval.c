@@ -352,6 +352,7 @@ static int eval_bc_test(sieve_interp_t *interp, void* m,
     int list_len; /* for allof/anyof/exists */
     int list_end; /* for allof/anyof/exists */
     int address=0;/*to differentiate between address and envelope*/
+    int has_index=0;/* used to differentiate between pre and post index tests */
     comparator_t * comp=NULL;
     void * comprock=NULL;
     int op= ntohl(bc[i].op);
@@ -458,8 +459,30 @@ static int eval_bc_test(sieve_interp_t *interp, void* m,
 	i = list_end; /* handle short-circuiting */
 	
 	break;
-    case BC_ADDRESS:/*7*/
+    case BC_ADDRESS:/*13*/
+	has_index=1;
+	/* fall through */
+    case BC_ADDRESS_PRE_INDEX:/*7*/
 	address=1;
+	if (BC_ADDRESS_PRE_INDEX == op) {
+	    /* There was a version of the bytecode that had the index extension
+	     * but did not update the bytecode codepoints, nor did it increment
+	     * the bytecode version number.  This tests if the index extension
+	     * was in the bytecode based on the position of the match-type
+	     * argument.
+	     */
+	    switch (bc[i+2].value) {
+	    case B_IS:
+	    case B_CONTAINS:
+	    case B_MATCHES:
+	    case B_REGEX:
+	    case B_COUNT:
+	    case B_VALUE:
+		has_index = 1;
+	    default:
+		has_index = 0;
+	    }
+	}
 	/* fall through */
     case BC_ENVELOPE:/*8*/
     {
@@ -468,7 +491,7 @@ static int eval_bc_test(sieve_interp_t *interp, void* m,
 	const struct address *a;
 	char *addr;
 
-	int headersi=address+i+5;/* the i value for the beginning of the headers */
+	int headersi=has_index+i+5;/* the i value for the beginning of the headers */
 	int datai=(ntohl(bc[headersi+1].value)/4);
 
 	int numheaders=ntohl(bc[headersi].len);
@@ -477,11 +500,11 @@ static int eval_bc_test(sieve_interp_t *interp, void* m,
 	int currh, currd; /* current header, current data */
 
 	int header_count;
-	int index=address ? ntohl(bc[i+1].value) : 0; // used for address only
-	int match=ntohl(bc[address+i+1].value);
-	int relation=ntohl(bc[address+i+2].value);
-	int comparator=ntohl(bc[address+i+3].value);
-	int apart=ntohl(bc[address+i+4].value);
+	int index=has_index ? ntohl(bc[i+1].value) : 0; // used for address only
+	int match=ntohl(bc[has_index+i+1].value);
+	int relation=ntohl(bc[has_index+i+2].value);
+	int comparator=ntohl(bc[has_index+i+3].value);
+	int apart=ntohl(bc[has_index+i+4].value);
 	int count=0;
 	int isReg = (match==B_REGEX);
 	int ctag = 0;
@@ -664,11 +687,33 @@ static int eval_bc_test(sieve_interp_t *interp, void* m,
 envelope_err:
 	break;
     }
-    case BC_HEADER:/*9*/
+    case BC_HEADER:/*14*/
+	has_index=1;
+	/* fall through */
+    case BC_HEADER_PRE_INDEX:/*9*/
+	if (BC_HEADER_PRE_INDEX == op) {
+	    /* There was a version of the bytecode that had the index extension
+	     * but did not update the bytecode codepoints, nor did it increment
+	     * the bytecode version number.  This tests if the index extension
+	     * was in the bytecode based on the position of the match-type
+	     * argument.
+	     */
+	    switch (ntohl(bc[i+2].value)) {
+	    case B_IS:
+	    case B_CONTAINS:
+	    case B_MATCHES:
+	    case B_REGEX:
+	    case B_COUNT:
+	    case B_VALUE:
+		    has_index = 1;
+	    default:
+		    has_index = 0;
+	    }
+	}
     {
 	const char** val;
 
-	int headersi=i+5;/*the i value for the beginning of the headers*/
+	int headersi=has_index+i+4;/*the i value for the beginning of the headers*/
 	int datai=(ntohl(bc[headersi+1].value)/4);
 
 	int numheaders=ntohl(bc[headersi].len);
@@ -677,10 +722,10 @@ envelope_err:
 	int currh, currd; /*current header, current data*/
 
 	int header_count;
-	int index=ntohl(bc[i+1].value);
-	int match=ntohl(bc[i+2].value);
-	int relation=ntohl(bc[i+3].value);
-	int comparator=ntohl(bc[i+4].value);
+	int index=has_index ? ntohl(bc[i+1].value) : 0;
+	int match=ntohl(bc[has_index+i+1].value);
+	int relation=ntohl(bc[has_index+i+2].value);
+	int comparator=ntohl(bc[has_index+i+3].value);
 	int count=0;	
 	int isReg = (match==B_REGEX);
 	int ctag = 0;
@@ -935,7 +980,47 @@ envelope_err:
 	break;
     }
     case BC_DATE:/*11*/
+	has_index=1;
     case BC_CURRENTDATE:/*12*/
+	if (BC_CURRENTDATE/*12*/ == op || BC_DATE/*11*/ == op) {
+	    /* There was a version of the bytecode that had the index extension
+	     * but did not update the bytecode codepoints, nor did it increment
+	     * the bytecode version number.  This tests if the index extension
+	     * was in the bytecode based on the position of the match-type
+	     * or comparator argument.  This will correctly identify whether
+	     * the index extension was supported in every case except the case
+	     * of a timezone that is 61 minutes offset (since 61 corresponds to
+	     * B_ORIGINALZONE).
+	     * There was also an unnumbered version of BC_CURRENTDATE that did
+	     * allow :index.  This also covers that case.
+	     */
+	    switch (ntohl(bc[i+4].value)) {
+	    case B_ASCIICASEMAP:
+	    case B_OCTET:
+	    case B_ASCIINUMERIC:
+		has_index = 0;
+		break;
+	    default:
+		if (B_TIMEZONE == ntohl(bc[i+1].value) &&
+			B_ORIGINALZONE != ntohl(bc[i+2].value)) {
+		    switch (ntohl(bc[i+3].value)) {
+		    case B_IS:
+		    case B_CONTAINS:
+		    case B_MATCHES:
+		    case B_REGEX:
+		    case B_COUNT:
+		    case B_VALUE:
+			has_index = 0;
+			break;
+		    default:
+			has_index = 1;
+
+		    }
+		} else {
+		    has_index = 1;
+		}
+	    }
+	}
     {
 	char buffer[64];
 	const char **headers = NULL;
@@ -958,7 +1043,7 @@ envelope_err:
 	++i; /* BC_DATE | BC_CURRENTDATE */
 
 	/* index */
-	index = ntohl(bc[i++].value);
+	index = has_index ? ntohl(bc[i++].value) : 0;
 
 	/* zone tag */
 	zone = ntohl(bc[i++].value);
@@ -1005,9 +1090,19 @@ envelope_err:
 		/* convert index argument value to array index */
 		if (index > 0) {
 			--index;
+			if (index >= header_count) {
+				res = SIEVE_FAIL;
+				goto alldone;
+			}
+			header_count = index + 1;
 		}
-		else {
+		else if (index < 0) {
 			index += header_count;
+			if (index < 0) {
+				res = SIEVE_FAIL;
+				goto alldone;
+			}
+			header_count = index + 1;
 		}
 
 		/* check if index is out of bounds */
