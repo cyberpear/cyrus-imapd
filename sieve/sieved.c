@@ -202,6 +202,7 @@ static int dump2_test(bytecode_input_t * d, int i)
 {
     int l,x,index;
     int opcode;
+    int has_index=0;/* used to differentiate between pre and post index tests */
 
     opcode = ntohl(d[i].value);
     switch(opcode) {
@@ -265,9 +266,31 @@ static int dump2_test(bytecode_input_t * d, int i)
 	
 	printf(")\n");
 	break;
-    case BC_ADDRESS:/*7*/
+    case BC_ADDRESS:/*13*/
+	has_index=1;
+	/*fall-through*/
+    case BC_ADDRESS_PRE_INDEX:/*7*/
+	if (BC_ADDRESS_PRE_INDEX == opcode) {
+	    /* There was a version of the bytecode that had the index extension
+	     * but did not update the bytecode codepoints, nor did it increment
+	     * the bytecode version number.  This tests if the index extension
+	     * was in the bytecode based on the position of the match-type
+	     * argument.
+	     */
+	    switch (d[i+2].value) {
+	    case B_IS:
+	    case B_CONTAINS:
+	    case B_MATCHES:
+	    case B_REGEX:
+	    case B_COUNT:
+	    case B_VALUE:
+		has_index = 1;
+	    default:
+		has_index = 0;
+	    }
+	}
 	printf("Address [");
-	index = ntohl(d[++i].value);
+	index = has_index ? ntohl(d[++i].value) : 0;
 	i=printComparison(d, i+1);
 	printf("               type: ");
 	switch(ntohl(d[i++].value))
@@ -307,9 +330,31 @@ static int dump2_test(bytecode_input_t * d, int i)
 	i=write_list(ntohl(d[i].len), i+1, d);
 	printf("             ]\n");
 	break;
-    case BC_HEADER:/*9*/
+    case BC_HEADER:/*14*/
+	has_index=1;
+	/*fall-through*/
+    case BC_HEADER_PRE_INDEX:/*9*/
+	if (BC_HEADER_PRE_INDEX == opcode) {
+	    /* There was a version of the bytecode that had the index extension
+	     * but did not update the bytecode codepoints, nor did it increment
+	     * the bytecode version number.  This tests if the index extension
+	     * was in the bytecode based on the position of the match-type
+	     * argument.
+	     */
+	    switch (ntohl(d[i+2].value)) {
+	    case B_IS:
+	    case B_CONTAINS:
+	    case B_MATCHES:
+	    case B_REGEX:
+	    case B_COUNT:
+	    case B_VALUE:
+		    has_index = 1;
+	    default:
+		    has_index = 0;
+	    }
+	}
 	printf("Header [");
-	index = ntohl(d[++i].value);
+	index = has_index ? ntohl(d[++i].value) : 0;
 	i= printComparison(d, i+1);
 	if (index != 0) {
 		printf("              Index: %d %s\n",
@@ -339,7 +384,47 @@ static int dump2_test(bytecode_input_t * d, int i)
 	printf("             ]\n");
 	break;
     case BC_DATE:/*11*/
+	has_index=1;
     case BC_CURRENTDATE:/*12*/
+	if (BC_CURRENTDATE/*12*/ == opcode || BC_DATE/*11*/ == opcode) {
+	    /* There was a version of the bytecode that had the index extension
+	     * but did not update the bytecode codepoints, nor did it increment
+	     * the bytecode version number.  This tests if the index extension
+	     * was in the bytecode based on the position of the match-type
+	     * or comparator argument.  This will correctly identify whether
+	     * the index extension was supported in every case except the case
+	     * of a timezone that is 61 minutes offset (since 61 corresponds to
+	     * B_ORIGINALZONE).
+	     * There was also an unnumbered version of BC_CURRENTDATE that did
+	     * allow :index.  This also covers that case.
+	     */
+	    switch (ntohl(d[i+4].value)) {
+	    case B_ASCIICASEMAP:
+	    case B_OCTET:
+	    case B_ASCIINUMERIC:
+		has_index = 0;
+		break;
+	    default:
+		if (B_TIMEZONE == ntohl(d[i+1].value) &&
+			B_ORIGINALZONE != ntohl(d[i+2].value)) {
+		    switch (ntohl(d[i+3].value)) {
+		    case B_IS:
+		    case B_CONTAINS:
+		    case B_MATCHES:
+		    case B_REGEX:
+		    case B_COUNT:
+		    case B_VALUE:
+			has_index = 0;
+			break;
+		    default:
+			has_index = 1;
+
+		    }
+		} else {
+		    has_index = 1;
+		}
+	    }
+	}
 	++i; /* skip opcode */
 
 	if (BC_DATE == opcode) {
@@ -350,21 +435,18 @@ static int dump2_test(bytecode_input_t * d, int i)
 	}
 
 	/* index */
-	index = ntohl(d[i++].value);
-	printf("              Index: %d %s\n",
-	    abs(index), index < 0 ? "[LAST]" : "");
+	index = has_index ? ntohl(d[i++].value) : 0;
+	if (index != 0) {
+		printf("              Index: %d %s\n",
+		    abs(index), index < 0 ? "[LAST]" : "");
+	}
 
 	/* zone tag */
 	{
-		int zone;
-		int timezone_offset;
-
 		printf("Zone-Tag: ");
-		zone = ntohl(d[i++].value);
-		switch (zone) {
+		switch (ntohl(d[i++].value)) {
 		case B_TIMEZONE:
-			timezone_offset = ntohl(d[i++].value);
-			printf("Specific timezone: offset by %d minutes.\n", timezone_offset);
+			printf("Specific timezone: offset by %d minutes.\n", ntohl(d[i++].value));
 			break;
 		case B_ORIGINALZONE:
 			printf("Original zone.\n");
