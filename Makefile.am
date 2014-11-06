@@ -1295,6 +1295,7 @@ sieve_libcyrus_sieve_la_SOURCES = \
 	sieve/comparator.h \
 	sieve/flags.c \
 	sieve/flags.h \
+	sieve/grammar.h \
 	sieve/interp.c \
 	sieve/interp.h \
 	sieve/message.c \
